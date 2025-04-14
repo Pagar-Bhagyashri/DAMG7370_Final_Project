@@ -1,0 +1,9 @@
+{
+	"name": "DAMG7370FinalProjectGroup6",
+	"location": "eastus",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "c6e099bb-325f-4b62-92ac-b70df5a033e1",
+		"tenantId": "a8eec281-aaa3-4dae-ac9b-9a398b9215e7"
+	}
+}
