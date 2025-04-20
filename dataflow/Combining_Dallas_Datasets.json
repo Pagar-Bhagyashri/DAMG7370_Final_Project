@@ -36,10 +36,25 @@
 			"sinks": [],
 			"transformations": [
 				{
-					"name": "union1"
+					"name": "MerginDallasDatasets"
+				},
+				{
+					"name": "AddingDataSource1"
+				},
+				{
+					"name": "AddingDataSource2"
+				},
+				{
+					"name": "AddingDataSource3"
+				},
+				{
+					"name": "AddingDataSource4"
 				},
 				{
 					"name": "derivedColumn1"
+				},
+				{
+					"name": "window1"
 				}
 			],
 			"scriptLines": [
@@ -139,8 +154,19 @@
 				"     validateSchema: false,",
 				"     ignoreNoFilesFound: false,",
 				"     format: 'parquet') ~> SrcDallas20242025",
-				"derivedColumn1 union(byName: true)~> union1",
-				"SrcDallas20212022 derive() ~> derivedColumn1"
+				"AddingDataSource1, AddingDataSource2, AddingDataSource3, AddingDataSource4 union(byName: true)~> MerginDallasDatasets",
+				"SrcDallas20212022 derive(DataSource = \"SrcDallas20212022\") ~> AddingDataSource1",
+				"SrcDallas20222023 derive(DataSource = \"SrcDallas20222023\") ~> AddingDataSource2",
+				"SrcDallas20232024 derive(DataSource = \"SrcDallas20312024\") ~> AddingDataSource3",
+				"SrcDallas20242025 derive(DataSource = \"SrcDallas20242025\") ~> AddingDataSource4",
+				"MerginDallasDatasets derive(Inspection_Year = iif(isNull(DataSource), \"Unknown\",\r",
+				"   iif(DataSource == \"SrcDallas20212022\", \"2021-2022\",\r",
+				"      iif(DataSource == \"SrcDallas20232023\", \"2022-2023\",\r",
+				"         iif(DataSource == \"SrcDallas20232024\", \"2023-2024\",\r",
+				"               \"2024-2025\"))))) ~> derivedColumn1",
+				"derivedColumn1 window(over(Inspection_ID,",
+				"          DBA_Name,",
+				"          {} = ERROR_FUNCTION(''))) ~> window1"
 			]
 		}
 	}
