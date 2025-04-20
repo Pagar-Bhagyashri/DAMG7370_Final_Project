@@ -10,7 +10,7 @@
 		"typeProperties": {
 			"location": {
 				"type": "AzureBlobFSLocation",
-				"fileName": "DALLAS 22-23 (1).parquet",
+				"fileName": "DALLAS 22-23.parquet",
 				"fileSystem": "silver"
 			},
 			"compressionCodec": "snappy"
