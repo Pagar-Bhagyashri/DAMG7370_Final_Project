@@ -1,0 +1,21 @@
+{
+	"name": "DallasFiles",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "FinalProjectAzureDataLakeStorage",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Parquet",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": "DALLAS_*.parquet",
+				"folderPath": "silver",
+				"fileSystem": "finalprojectdatastorage"
+			},
+			"compressionCodec": "snappy"
+		},
+		"schema": []
+	}
+}
