@@ -1,54 +1,31 @@
 {
-	"name": "DIM_VIOLATION",
+	"name": "DIM_DATE",
 	"properties": {
 		"type": "MappingDataFlow",
 		"typeProperties": {
 			"sources": [
 				{
 					"dataset": {
-						"referenceName": "SnowflakeTable1",
+						"referenceName": "SnowflakeTable12",
 						"type": "DatasetReference"
 					},
 					"name": "STAGEDDALLAS"
 				},
 				{
 					"dataset": {
-						"referenceName": "SnowflakeTable2",
+						"referenceName": "SnowflakeTable13",
 						"type": "DatasetReference"
 					},
 					"name": "STAGEDCHICAGO"
 				}
 			],
-			"sinks": [
-				{
-					"dataset": {
-						"referenceName": "SnowflakeTable3",
-						"type": "DatasetReference"
-					},
-					"name": "sink1"
-				}
-			],
+			"sinks": [],
 			"transformations": [
 				{
 					"name": "union1"
 				},
 				{
 					"name": "select1"
-				},
-				{
-					"name": "surrogateKey1"
-				},
-				{
-					"name": "derivedColumn1"
-				},
-				{
-					"name": "FlaggingDuplicates"
-				},
-				{
-					"name": "SplitTheDuplicates"
-				},
-				{
-					"name": "DeDuplicatedData"
 				}
 			],
 			"scriptLines": [
@@ -102,54 +79,28 @@
 				"     format: 'table') ~> STAGEDCHICAGO",
 				"STAGEDDALLAS, STAGEDCHICAGO union(byName: true)~> union1",
 				"union1 select(mapColumn(",
+				"          INSPECTION_ID,",
+				"          DBA_NAME,",
+				"          AKA_NAME,",
+				"          FACILITY_TYPE,",
+				"          ADDRESS,",
+				"          CITY,",
+				"          STATE,",
+				"          ZIP,",
+				"          INSPECTION_DATE,",
+				"          INSPECTION_TYPE,",
+				"          INSPECTION_RESULT,",
+				"          LATITUDE,",
+				"          LONGITUDE,",
 				"          VIOLATION_CATEGORY_ID,",
 				"          VIOLATION_CATEGORY,",
-				"          VIOLATION_COMMENTS",
-				"     ),",
-				"     skipDuplicateMapInputs: true,",
-				"     skipDuplicateMapOutputs: true) ~> select1",
-				"DeDuplicatedData keyGenerate(output(VIOLATION_SK as long),",
-				"     startAt: 1L,",
-				"     stepValue: 1L) ~> surrogateKey1",
-				"surrogateKey1 derive(DI_JOB_ID = \"RARA\",",
-				"          DI_LOAD_DT = currentTimestamp()) ~> derivedColumn1",
-				"select1 window(over(VIOLATION_CATEGORY,",
-				"          VIOLATION_COMMENTS),",
-				"     desc(VIOLATION_CATEGORY_ID, true),",
-				"     desc(VIOLATION_COMMENTS, true),",
-				"     Record_Count = count(1),",
-				"          IsLatest = rank() == 1) ~> FlaggingDuplicates",
-				"FlaggingDuplicates split(Record_Count == 1,",
-				"     Record_Count > 1 && IsLatest == true(),",
-				"     IsLatest == false(),",
-				"     disjoint: false) ~> SplitTheDuplicates@(UniqueRecords, LatestDuplicates, OlderDuplicates)",
-				"SplitTheDuplicates@UniqueRecords, SplitTheDuplicates@LatestDuplicates union(byName: true)~> DeDuplicatedData",
-				"derivedColumn1 sink(allowSchemaDrift: true,",
-				"     validateSchema: false,",
-				"     input(",
-				"          VIOLATION_SK as decimal(25,0),",
-				"          VIOLATION_CAT_ID as decimal(10,0),",
-				"          VIOLATION_CAT as string,",
-				"          VIOLATION_SCORE as decimal(2,0),",
-				"          DI_JOB_ID as string,",
-				"          DI_LOAD_DT as timestamp",
-				"     ),",
-				"     deletable:false,",
-				"     insertable:true,",
-				"     updateable:false,",
-				"     upsertable:false,",
-				"     format: 'table',",
-				"     skipDuplicateMapInputs: true,",
-				"     skipDuplicateMapOutputs: true,",
-				"     stageInsert: true,",
-				"     mapColumn(",
-				"          VIOLATION_CAT_ID = VIOLATION_CATEGORY_ID,",
-				"          VIOLATION_CAT = VIOLATION_CATEGORY,",
 				"          VIOLATION_COMMENTS,",
-				"          VIOLATION_SK,",
-				"          DI_JOB_ID,",
-				"          DI_LOAD_DT",
-				"     )) ~> sink1"
+				"          VIOLATION_POINT,",
+				"          RISK_LEVEL,",
+				"          SURROGATE_KEY",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select1"
 			]
 		}
 	}

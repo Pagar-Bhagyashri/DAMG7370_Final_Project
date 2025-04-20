@@ -1,0 +1,105 @@
+{
+	"name": "SnowflakeTable10",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "FinalProjectSnowflake",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "SnowflakeV2Table",
+		"schema": [
+			{
+				"name": "INSPECTION_ID",
+				"type": "NUMBER",
+				"precision": 38,
+				"scale": 0
+			},
+			{
+				"name": "DBA_NAME",
+				"type": "VARCHAR"
+			},
+			{
+				"name": "AKA_NAME",
+				"type": "VARCHAR"
+			},
+			{
+				"name": "FACILITY_TYPE",
+				"type": "VARCHAR"
+			},
+			{
+				"name": "ADDRESS",
+				"type": "VARCHAR"
+			},
+			{
+				"name": "CITY",
+				"type": "VARCHAR"
+			},
+			{
+				"name": "STATE",
+				"type": "VARCHAR"
+			},
+			{
+				"name": "ZIP",
+				"type": "NUMBER",
+				"precision": 38,
+				"scale": 0
+			},
+			{
+				"name": "INSPECTION_DATE",
+				"type": "DATE"
+			},
+			{
+				"name": "INSPECTION_TYPE",
+				"type": "VARCHAR"
+			},
+			{
+				"name": "INSPECTION_RESULT",
+				"type": "VARCHAR"
+			},
+			{
+				"name": "LATITUDE",
+				"type": "NUMBER",
+				"precision": 38,
+				"scale": 0
+			},
+			{
+				"name": "LONGITUDE",
+				"type": "NUMBER",
+				"precision": 38,
+				"scale": 0
+			},
+			{
+				"name": "VIOLATION_CATEGORY_ID",
+				"type": "NUMBER",
+				"precision": 38,
+				"scale": 0
+			},
+			{
+				"name": "VIOLATION_CATEGORY",
+				"type": "VARCHAR"
+			},
+			{
+				"name": "VIOLATION_COMMENTS",
+				"type": "VARCHAR"
+			},
+			{
+				"name": "VIOLATION_POINT",
+				"type": "NUMBER",
+				"precision": 38,
+				"scale": 0
+			},
+			{
+				"name": "RISK_LEVEL",
+				"type": "VARCHAR"
+			},
+			{
+				"name": "SURROGATE_KEY",
+				"type": "VARCHAR"
+			}
+		],
+		"typeProperties": {
+			"schema": "FINAL_PROJECT_SCHEMA",
+			"table": "STG_DALLAS"
+		}
+	}
+}

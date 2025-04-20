@@ -1,28 +1,28 @@
 {
-	"name": "DIM_VIOLATION",
+	"name": "DIM_LOCATION",
 	"properties": {
 		"type": "MappingDataFlow",
 		"typeProperties": {
 			"sources": [
 				{
 					"dataset": {
-						"referenceName": "SnowflakeTable1",
+						"referenceName": "CHICAGO",
 						"type": "DatasetReference"
 					},
-					"name": "STAGEDDALLAS"
+					"name": "STAGECHICAGO"
 				},
 				{
 					"dataset": {
-						"referenceName": "SnowflakeTable2",
+						"referenceName": "SnowflakeTable10",
 						"type": "DatasetReference"
 					},
-					"name": "STAGEDCHICAGO"
+					"name": "STAGEDALLAS"
 				}
 			],
 			"sinks": [
 				{
 					"dataset": {
-						"referenceName": "SnowflakeTable3",
+						"referenceName": "SnowflakeTable11",
 						"type": "DatasetReference"
 					},
 					"name": "sink1"
@@ -40,42 +40,9 @@
 				},
 				{
 					"name": "derivedColumn1"
-				},
-				{
-					"name": "FlaggingDuplicates"
-				},
-				{
-					"name": "SplitTheDuplicates"
-				},
-				{
-					"name": "DeDuplicatedData"
 				}
 			],
 			"scriptLines": [
-				"source(output(",
-				"          INSPECTION_ID as decimal(38,0),",
-				"          DBA_NAME as string,",
-				"          AKA_NAME as string,",
-				"          FACILITY_TYPE as string,",
-				"          ADDRESS as string,",
-				"          CITY as string,",
-				"          STATE as string,",
-				"          ZIP as decimal(38,0),",
-				"          INSPECTION_DATE as date,",
-				"          INSPECTION_TYPE as string,",
-				"          INSPECTION_RESULT as string,",
-				"          LATITUDE as decimal(38,0),",
-				"          LONGITUDE as decimal(38,0),",
-				"          VIOLATION_CATEGORY_ID as decimal(38,0),",
-				"          VIOLATION_CATEGORY as string,",
-				"          VIOLATION_COMMENTS as string,",
-				"          VIOLATION_POINT as decimal(38,0),",
-				"          RISK_LEVEL as string,",
-				"          SURROGATE_KEY as string",
-				"     ),",
-				"     allowSchemaDrift: true,",
-				"     validateSchema: false,",
-				"     format: 'table') ~> STAGEDDALLAS",
 				"source(output(",
 				"          INSPECTION_ID as decimal(38,0),",
 				"          DBA_NAME as string,",
@@ -99,38 +66,58 @@
 				"     ),",
 				"     allowSchemaDrift: true,",
 				"     validateSchema: false,",
-				"     format: 'table') ~> STAGEDCHICAGO",
-				"STAGEDDALLAS, STAGEDCHICAGO union(byName: true)~> union1",
+				"     format: 'table') ~> STAGECHICAGO",
+				"source(output(",
+				"          INSPECTION_ID as decimal(38,0),",
+				"          DBA_NAME as string,",
+				"          AKA_NAME as string,",
+				"          FACILITY_TYPE as string,",
+				"          ADDRESS as string,",
+				"          CITY as string,",
+				"          STATE as string,",
+				"          ZIP as decimal(38,0),",
+				"          INSPECTION_DATE as date,",
+				"          INSPECTION_TYPE as string,",
+				"          INSPECTION_RESULT as string,",
+				"          LATITUDE as decimal(38,0),",
+				"          LONGITUDE as decimal(38,0),",
+				"          VIOLATION_CATEGORY_ID as decimal(38,0),",
+				"          VIOLATION_CATEGORY as string,",
+				"          VIOLATION_COMMENTS as string,",
+				"          VIOLATION_POINT as decimal(38,0),",
+				"          RISK_LEVEL as string,",
+				"          SURROGATE_KEY as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'table') ~> STAGEDALLAS",
+				"STAGECHICAGO, STAGEDALLAS union(byName: true)~> union1",
 				"union1 select(mapColumn(",
-				"          VIOLATION_CATEGORY_ID,",
-				"          VIOLATION_CATEGORY,",
-				"          VIOLATION_COMMENTS",
+				"          ADDRESS,",
+				"          CITY,",
+				"          STATE,",
+				"          ZIP,",
+				"          LATITUDE,",
+				"          LONGITUDE",
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> select1",
-				"DeDuplicatedData keyGenerate(output(VIOLATION_SK as long),",
+				"select1 keyGenerate(output(Location_SK as long),",
 				"     startAt: 1L,",
 				"     stepValue: 1L) ~> surrogateKey1",
 				"surrogateKey1 derive(DI_JOB_ID = \"RARA\",",
 				"          DI_LOAD_DT = currentTimestamp()) ~> derivedColumn1",
-				"select1 window(over(VIOLATION_CATEGORY,",
-				"          VIOLATION_COMMENTS),",
-				"     desc(VIOLATION_CATEGORY_ID, true),",
-				"     desc(VIOLATION_COMMENTS, true),",
-				"     Record_Count = count(1),",
-				"          IsLatest = rank() == 1) ~> FlaggingDuplicates",
-				"FlaggingDuplicates split(Record_Count == 1,",
-				"     Record_Count > 1 && IsLatest == true(),",
-				"     IsLatest == false(),",
-				"     disjoint: false) ~> SplitTheDuplicates@(UniqueRecords, LatestDuplicates, OlderDuplicates)",
-				"SplitTheDuplicates@UniqueRecords, SplitTheDuplicates@LatestDuplicates union(byName: true)~> DeDuplicatedData",
 				"derivedColumn1 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
-				"          VIOLATION_SK as decimal(25,0),",
-				"          VIOLATION_CAT_ID as decimal(10,0),",
-				"          VIOLATION_CAT as string,",
-				"          VIOLATION_SCORE as decimal(2,0),",
+				"          LOCATION_SK as decimal(20,0),",
+				"          ADDRESS as string,",
+				"          CITY as string,",
+				"          STATE as string,",
+				"          ZIP_CODE as decimal(10,0),",
+				"          LATITUDE as double,",
+				"          LONGITUDE as double,",
+				"          IS_CURRENT as decimal(2,0),",
 				"          DI_JOB_ID as string,",
 				"          DI_LOAD_DT as timestamp",
 				"     ),",
@@ -141,15 +128,7 @@
 				"     format: 'table',",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true,",
-				"     stageInsert: true,",
-				"     mapColumn(",
-				"          VIOLATION_CAT_ID = VIOLATION_CATEGORY_ID,",
-				"          VIOLATION_CAT = VIOLATION_CATEGORY,",
-				"          VIOLATION_COMMENTS,",
-				"          VIOLATION_SK,",
-				"          DI_JOB_ID,",
-				"          DI_LOAD_DT",
-				"     )) ~> sink1"
+				"     stageInsert: true) ~> sink1"
 			]
 		}
 	}
