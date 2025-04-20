@@ -84,6 +84,9 @@
 				},
 				{
 					"name": "derivedColumn1"
+				},
+				{
+					"name": "SelectFinalColumns"
 				}
 			],
 			"scriptLines": [
@@ -265,6 +268,29 @@
 				"SplitByDuplicates@OlderDuplicates derive(DetectedTimeStamp = currentTimestamp(),",
 				"          AuditSource = \"Duplicate Detection\",",
 				"          DuplicateReason = concat('Earlier version found in ', toString(Record_Count), ' datasets')) ~> derivedColumn1",
+				"WithSurrogateKey select(mapColumn(",
+				"          Inspection_ID,",
+				"          DBA_Name,",
+				"          AKA_Name,",
+				"          Facility_Type,",
+				"          Address,",
+				"          City,",
+				"          State,",
+				"          Zip,",
+				"          Inspection_Date,",
+				"          Inspection_Type,",
+				"          Inspection_Result,",
+				"          Latitude,",
+				"          Longitude,",
+				"          Violation_Category_ID,",
+				"          Violation_Category,",
+				"          Violation_Comments,",
+				"          Violation_Point,",
+				"          Risk_Level,",
+				"          SurrogateKey",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> SelectFinalColumns",
 				"derivedColumn1 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     skipDuplicateMapInputs: true,",
