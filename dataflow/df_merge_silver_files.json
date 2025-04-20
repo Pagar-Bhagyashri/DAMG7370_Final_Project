@@ -1,0 +1,133 @@
+{
+	"name": "df_merge_silver_files",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "ds_silver_parquet",
+						"type": "DatasetReference"
+					},
+					"name": "SilverFiles"
+				},
+				{
+					"dataset": {
+						"referenceName": "ChicagoFiles",
+						"type": "DatasetReference"
+					},
+					"name": "ChicagoFiles"
+				},
+				{
+					"dataset": {
+						"referenceName": "DallasFiles",
+						"type": "DatasetReference"
+					},
+					"name": "DallasFiles"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "ds_staging_merged_parquet",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "select1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          Inspection_ID as integer,",
+				"          DBA_Name as string,",
+				"          AKA_Name as string,",
+				"          Facility_Type as string,",
+				"          Address as string,",
+				"          City as string,",
+				"          State as string,",
+				"          Zip as double,",
+				"          Inspection_Date as string,",
+				"          Inspection_Type as string,",
+				"          Inspection_Result as string,",
+				"          Latitude as string,",
+				"          Longitude as string,",
+				"          Violation_Category_ID as string,",
+				"          Violation_Category as string,",
+				"          Violation_Comments as string,",
+				"          Violation_Point as long,",
+				"          Risk_Level as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     inferDriftedColumnTypes: true,",
+				"     ignoreNoFilesFound: false,",
+				"     format: 'parquet',",
+				"     wildcardPaths:['*.parquet']) ~> SilverFiles",
+				"source(output(",
+				"          Inspection_ID as integer,",
+				"          DBA_Name as string,",
+				"          AKA_Name as string,",
+				"          Facility_Type as string,",
+				"          Address as string,",
+				"          City as string,",
+				"          State as string,",
+				"          Zip as double,",
+				"          Inspection_Date as string,",
+				"          Inspection_Type as string,",
+				"          Inspection_Result as string,",
+				"          Latitude as string,",
+				"          Longitude as string,",
+				"          Violation_Category_ID as string,",
+				"          Violation_Category as string,",
+				"          Violation_Comments as string,",
+				"          Violation_Point as long,",
+				"          Risk_Level as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     inferDriftedColumnTypes: true,",
+				"     ignoreNoFilesFound: false,",
+				"     format: 'parquet') ~> ChicagoFiles",
+				"source(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     inferDriftedColumnTypes: true,",
+				"     ignoreNoFilesFound: false,",
+				"     format: 'parquet') ~> DallasFiles",
+				"SilverFiles select(mapColumn(",
+				"          Inspection_ID,",
+				"          DBA_Name,",
+				"          AKA_Name,",
+				"          Facility_Type,",
+				"          Address,",
+				"          City,",
+				"          State,",
+				"          Zip,",
+				"          Inspection_Date,",
+				"          Inspection_Type,",
+				"          Inspection_Result,",
+				"          Latitude,",
+				"          Longitude,",
+				"          Violation_Category_ID,",
+				"          Violation_Category,",
+				"          Violation_Comments,",
+				"          Violation_Point,",
+				"          Risk_Level",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select1",
+				"select1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'parquet',",
+				"     umask: 0022,",
+				"     preCommands: [],",
+				"     postCommands: [],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> sink1"
+			]
+		}
+	}
+}
