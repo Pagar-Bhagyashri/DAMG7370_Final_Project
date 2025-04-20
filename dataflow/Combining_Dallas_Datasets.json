@@ -3,11 +3,135 @@
 	"properties": {
 		"type": "MappingDataFlow",
 		"typeProperties": {
-			"sources": [],
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "DALLAS_21_22",
+						"type": "DatasetReference"
+					},
+					"name": "SrcDallas20212022"
+				},
+				{
+					"dataset": {
+						"referenceName": "DALLAS_22_23",
+						"type": "DatasetReference"
+					},
+					"name": "SrcDallas20222023"
+				},
+				{
+					"dataset": {
+						"referenceName": "DALLAS_23_24",
+						"type": "DatasetReference"
+					},
+					"name": "SrcDallas20232024"
+				},
+				{
+					"dataset": {
+						"referenceName": "DALLAS_24_25",
+						"type": "DatasetReference"
+					},
+					"name": "SrcDallas20242025"
+				}
+			],
 			"sinks": [],
 			"transformations": [],
 			"scriptLines": [
-				""
+				"source(output(",
+				"          Inspection_ID as string,",
+				"          DBA_Name as string,",
+				"          Inspection_Type as string,",
+				"          Inspection_Date as string,",
+				"          Zip_Code as long,",
+				"          Address as string,",
+				"          Voilation_Point as long,",
+				"          Violation_Comment as string,",
+				"          State as string,",
+				"          Facility_Type as string,",
+				"          City as string,",
+				"          Violations_Category_Id as long,",
+				"          Violations_Category as string,",
+				"          Latitude as string,",
+				"          Longitude as string,",
+				"          Risk_Level as string,",
+				"          Inspection_Result as string,",
+				"          AKA_Name as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     format: 'parquet') ~> SrcDallas20212022",
+				"source(output(",
+				"          Inspection_ID as string,",
+				"          DBA_Name as string,",
+				"          Inspection_Type as string,",
+				"          Inspection_Date as string,",
+				"          Zip_Code as long,",
+				"          Address as string,",
+				"          Voilation_Point as long,",
+				"          Violation_Comment as string,",
+				"          State as string,",
+				"          Facility_Type as string,",
+				"          City as string,",
+				"          Violations_Category_Id as long,",
+				"          Violations_Category as string,",
+				"          Latitude as string,",
+				"          Longitude as string,",
+				"          Risk_Level as string,",
+				"          Inspection_Result as string,",
+				"          AKA_Name as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     format: 'parquet') ~> SrcDallas20222023",
+				"source(output(",
+				"          Inspection_ID as string,",
+				"          DBA_Name as string,",
+				"          Inspection_Type as string,",
+				"          Inspection_Date as string,",
+				"          Zip_Code as long,",
+				"          Address as string,",
+				"          Voilation_Point as long,",
+				"          Violation_Comment as string,",
+				"          State as string,",
+				"          Facility_Type as string,",
+				"          City as string,",
+				"          Violations_Category_Id as long,",
+				"          Violations_Category as string,",
+				"          Latitude as string,",
+				"          Longitude as string,",
+				"          Risk_Level as string,",
+				"          Inspection_Result as string,",
+				"          AKA_Name as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     format: 'parquet') ~> SrcDallas20232024",
+				"source(output(",
+				"          Inspection_ID as string,",
+				"          DBA_Name as string,",
+				"          Inspection_Type as string,",
+				"          Inspection_Date as string,",
+				"          Zip_Code as long,",
+				"          Address as string,",
+				"          Voilation_Point as long,",
+				"          Violation_Comment as string,",
+				"          State as string,",
+				"          Facility_Type as string,",
+				"          City as string,",
+				"          Violations_Category_Id as long,",
+				"          Violations_Category as string,",
+				"          Latitude as string,",
+				"          Longitude as string,",
+				"          Risk_Level as string,",
+				"          Inspection_Result as string,",
+				"          AKA_Name as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     format: 'parquet') ~> SrcDallas20242025"
 			]
 		}
 	}
