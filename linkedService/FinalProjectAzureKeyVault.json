@@ -1,0 +1,10 @@
+{
+	"name": "FinalProjectAzureKeyVault",
+	"properties": {
+		"annotations": [],
+		"type": "AzureKeyVault",
+		"typeProperties": {
+			"baseUrl": "https://finalprojectkeyvaultdamg.vault.azure.net/"
+		}
+	}
+}

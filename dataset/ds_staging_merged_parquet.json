@@ -1,0 +1,19 @@
+{
+	"name": "ds_staging_merged_parquet",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "FinalProjectAzureDataLakeStorage",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Parquet",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileSystem": "merged"
+			},
+			"compressionCodec": "snappy"
+		},
+		"schema": []
+	}
+}
