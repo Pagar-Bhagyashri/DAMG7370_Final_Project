@@ -34,7 +34,14 @@
 				}
 			],
 			"sinks": [],
-			"transformations": [],
+			"transformations": [
+				{
+					"name": "union1"
+				},
+				{
+					"name": "derivedColumn1"
+				}
+			],
 			"scriptLines": [
 				"source(output(",
 				"          Inspection_ID as string,",
@@ -131,7 +138,9 @@
 				"     allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     ignoreNoFilesFound: false,",
-				"     format: 'parquet') ~> SrcDallas20242025"
+				"     format: 'parquet') ~> SrcDallas20242025",
+				"derivedColumn1 union(byName: true)~> union1",
+				"SrcDallas20212022 derive() ~> derivedColumn1"
 			]
 		}
 	}

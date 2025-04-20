@@ -40,8 +40,52 @@
 					"name": "SrcChicago2025Present"
 				}
 			],
-			"sinks": [],
-			"transformations": [],
+			"sinks": [
+				{
+					"name": "DuplicatesAuditSink"
+				}
+			],
+			"transformations": [
+				{
+					"name": "ChicagoCombined"
+				},
+				{
+					"name": "ChicagoColumns"
+				},
+				{
+					"name": "AddingDataSourceAndYear1"
+				},
+				{
+					"name": "AddingDataSourceAndYear2"
+				},
+				{
+					"name": "AddingDataSourceAndYear3"
+				},
+				{
+					"name": "AddingDataSourceAndYear4"
+				},
+				{
+					"name": "AddingDataSourceAndYear5"
+				},
+				{
+					"name": "ChicagoColumnsSelect"
+				},
+				{
+					"name": "FlaggingDuplicates"
+				},
+				{
+					"name": "SplitByDuplicates"
+				},
+				{
+					"name": "DeDuplicatedData"
+				},
+				{
+					"name": "WithSurrogateKey"
+				},
+				{
+					"name": "derivedColumn1"
+				}
+			],
 			"scriptLines": [
 				"source(output(",
 				"          Inspection_ID as integer,",
@@ -162,7 +206,69 @@
 				"     allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     ignoreNoFilesFound: false,",
-				"     format: 'parquet') ~> SrcChicago2025Present"
+				"     format: 'parquet') ~> SrcChicago2025Present",
+				"AddingDataSourceAndYear1, AddingDataSourceAndYear2, AddingDataSourceAndYear3, AddingDataSourceAndYear4, AddingDataSourceAndYear5 union(byName: true)~> ChicagoCombined",
+				"ChicagoCombined derive(Source_File_City = \"Chicago\",",
+				"          Inspection_Year = iif(isNull(DataSource), \"Unknown\",\r",
+				"   iif(DataSource == \"SrcChicago20212022\", \"2021-2022\",\r",
+				"      iif(DataSource == \"SrcChicago20222023\", \"2022-2023\",\r",
+				"         iif(DataSource == \"SrcChicago20232024\", \"2023-2024\",\r",
+				"            iif(DataSource == \"SrcChicago20242025\", \"2024-2025\",\r",
+				"               \"2025-2026\")))))) ~> ChicagoColumns",
+				"SrcChicago20212022 derive(DataSource = \"SrcChicago20212022\") ~> AddingDataSourceAndYear1",
+				"SrcChicago20222023 derive(DataSource = \"SrcChicago20222023\") ~> AddingDataSourceAndYear2",
+				"SrcChicago20232024 derive(DataSource = \"SrcChicago20232024\") ~> AddingDataSourceAndYear3",
+				"SrcChicago20242025 derive(DataSource = \"SrcChicago20242025\") ~> AddingDataSourceAndYear4",
+				"SrcChicago2025Present derive(DataSource = \"SrcChicago20252026\") ~> AddingDataSourceAndYear5",
+				"ChicagoColumns select(mapColumn(",
+				"          Inspection_ID,",
+				"          DBA_Name,",
+				"          AKA_Name,",
+				"          Facility_Type,",
+				"          Address,",
+				"          City,",
+				"          State,",
+				"          Zip,",
+				"          Inspection_Date,",
+				"          Inspection_Type,",
+				"          Inspection_Result,",
+				"          Latitude,",
+				"          Longitude,",
+				"          Violation_Category_ID,",
+				"          Violation_Category,",
+				"          Violation_Comments,",
+				"          Violation_Point,",
+				"          Risk_Level,",
+				"          DataSource,",
+				"          Source_File_City,",
+				"          Inspection_Year",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> ChicagoColumnsSelect",
+				"ChicagoColumnsSelect window(over(Inspection_ID,",
+				"          DBA_Name,",
+				"          Violation_Category_ID,",
+				"          Violation_Comments),",
+				"     desc(Inspection_Year, true),",
+				"     Record_Count = count(1),",
+				"          IsLatest = rank()==1) ~> FlaggingDuplicates",
+				"FlaggingDuplicates split(Record_Count == 1,",
+				"     Record_Count > 1 && IsLatest == true(),",
+				"     IsLatest == false(),",
+				"     disjoint: false) ~> SplitByDuplicates@(UniqueRecords, LatestDuplicates, OlderDuplicates)",
+				"SplitByDuplicates@UniqueRecords, SplitByDuplicates@LatestDuplicates union(byName: true)~> DeDuplicatedData",
+				"DeDuplicatedData window(asc(Inspection_ID, true),",
+				"     asc(DBA_Name, true),",
+				"     asc(Violation_Category_ID, true),",
+				"     asc(Violation_Comments, true),",
+				"     SurrogateKey = concat('INSP_', toString(count(1)))) ~> WithSurrogateKey",
+				"SplitByDuplicates@OlderDuplicates derive(DetectedTimeStamp = currentTimestamp(),",
+				"          AuditSource = \"Duplicate Detection\",",
+				"          DuplicateReason = concat('Earlier version found in ', toString(Record_Count), ' datasets')) ~> derivedColumn1",
+				"derivedColumn1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> DuplicatesAuditSink"
 			]
 		}
 	}
