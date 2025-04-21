@@ -5,17 +5,9 @@
 		"typeProperties": {
 			"sources": [
 				{
-					"dataset": {
-						"referenceName": "SnowflakeTable4",
-						"type": "DatasetReference"
-					},
 					"name": "STAGECHICAGO"
 				},
 				{
-					"dataset": {
-						"referenceName": "SnowflakeTable5",
-						"type": "DatasetReference"
-					},
 					"name": "STAGEDALLAS"
 				},
 				{
@@ -88,8 +80,7 @@
 				"          SURROGATE_KEY as string",
 				"     ),",
 				"     allowSchemaDrift: true,",
-				"     validateSchema: false,",
-				"     format: 'table') ~> STAGECHICAGO",
+				"     validateSchema: false) ~> STAGECHICAGO",
 				"source(output(",
 				"          INSPECTION_ID as decimal(38,0),",
 				"          DBA_NAME as string,",
@@ -112,8 +103,7 @@
 				"          SURROGATE_KEY as string",
 				"     ),",
 				"     allowSchemaDrift: true,",
-				"     validateSchema: false,",
-				"     format: 'table') ~> STAGEDALLAS",
+				"     validateSchema: false) ~> STAGEDALLAS",
 				"source(output(",
 				"          MAX_INSPECTION_TYPE as decimal(30,0)",
 				"     ),",
@@ -164,6 +154,7 @@
 				"          INSPECTION_TYPE_SK as decimal(30,0),",
 				"          INSPECTION_ID as decimal(10,0),",
 				"          INSPECTION_TYPE as string,",
+				"          INSPECTION_RESULT as string,",
 				"          DI_JOB_ID as string,",
 				"          DI_LOAD_DT as timestamp",
 				"     ),",
