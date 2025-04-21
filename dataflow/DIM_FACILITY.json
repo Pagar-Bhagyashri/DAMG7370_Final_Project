@@ -25,18 +25,18 @@
 						"referenceName": "SnowflakeTable9",
 						"type": "DatasetReference"
 					},
-					"name": "sink1"
+					"name": "sinkDimFacility"
 				}
 			],
 			"transformations": [
 				{
-					"name": "union1"
+					"name": "Combine"
 				},
 				{
-					"name": "select1"
+					"name": "SelectReqColumns"
 				},
 				{
-					"name": "surrogateKey1"
+					"name": "AddSurrogateKey"
 				},
 				{
 					"name": "FlaggingDuplicates"
@@ -48,10 +48,10 @@
 					"name": "DeDuplicatedData"
 				},
 				{
-					"name": "select2"
+					"name": "SelectColumns"
 				},
 				{
-					"name": "derivedColumn1"
+					"name": "CreateJobIdAndLoadDt"
 				}
 			],
 			"scriptLines": [
@@ -103,18 +103,18 @@
 				"     allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     format: 'table') ~> STAGEDALLAS",
-				"STAGECHICAGO, STAGEDALLAS union(byName: true)~> union1",
-				"union1 select(mapColumn(",
+				"STAGECHICAGO, STAGEDALLAS union(byName: true)~> Combine",
+				"Combine select(mapColumn(",
 				"          DBA_NAME,",
 				"          AKA_NAME,",
 				"          FACILITY_TYPE",
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
-				"     skipDuplicateMapOutputs: true) ~> select1",
+				"     skipDuplicateMapOutputs: true) ~> SelectReqColumns",
 				"DeDuplicatedData keyGenerate(output(FACILITY_SK as long),",
 				"     startAt: 1L,",
-				"     stepValue: 1L) ~> surrogateKey1",
-				"derivedColumn1 window(over(FACILITY_TYPE,",
+				"     stepValue: 1L) ~> AddSurrogateKey",
+				"CreateJobIdAndLoadDt window(over(FACILITY_TYPE,",
 				"          DBA_NAME),",
 				"     asc(AKA_NAME, true),",
 				"     Record_Count = count(1),",
@@ -124,7 +124,7 @@
 				"     IsLatest == false(),",
 				"     disjoint: false) ~> UniqueRecords@(UniqueRecords, LatestDuplicates, OlderDuplicates)",
 				"UniqueRecords@UniqueRecords, UniqueRecords@LatestDuplicates union(byName: true)~> DeDuplicatedData",
-				"surrogateKey1 select(mapColumn(",
+				"AddSurrogateKey select(mapColumn(",
 				"          DBA_NAME,",
 				"          AKA_NAME,",
 				"          FACILITY_TYPE,",
@@ -133,10 +133,10 @@
 				"          FACILITY_SK",
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
-				"     skipDuplicateMapOutputs: true) ~> select2",
-				"select1 derive(DI_JOB_ID = \"Abbey\",",
-				"          DI_LOAD_DT = currentTimestamp()) ~> derivedColumn1",
-				"select2 sink(allowSchemaDrift: true,",
+				"     skipDuplicateMapOutputs: true) ~> SelectColumns",
+				"SelectReqColumns derive(DI_JOB_ID = \"Abbey\",",
+				"          DI_LOAD_DT = currentTimestamp()) ~> CreateJobIdAndLoadDt",
+				"SelectColumns sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
 				"          FACILITY_SK as decimal(15,0),",
@@ -153,7 +153,7 @@
 				"     format: 'table',",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true,",
-				"     stageInsert: true) ~> sink1"
+				"     stageInsert: true) ~> sinkDimFacility"
 			]
 		}
 	}
