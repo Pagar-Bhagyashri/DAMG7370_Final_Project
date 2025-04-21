@@ -47,11 +47,22 @@
 					"name": "srcDimViolation"
 				},
 				{
+					"dataset": {
+						"referenceName": "DimDate",
+						"type": "DatasetReference"
+					},
 					"name": "srcDimDate"
 				}
 			],
 			"sinks": [],
-			"transformations": [],
+			"transformations": [
+				{
+					"name": "CombiningChicagoDallas"
+				},
+				{
+					"name": "AggregateColumns"
+				}
+			],
 			"scriptLines": [
 				"source(output(",
 				"          INSPECTION_ID as decimal(38,0),",
@@ -148,8 +159,26 @@
 				"     allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     format: 'table') ~> srcDimViolation",
-				"source(allowSchemaDrift: true,",
-				"     validateSchema: false) ~> srcDimDate"
+				"source(output(",
+				"          DATE_SK as decimal(10,0),",
+				"          DATE as date,",
+				"          DAY_NAME as string,",
+				"          DAY_ABBR as string,",
+				"          DAY_NUM as decimal(2,0),",
+				"          MONTH_NAME as string,",
+				"          MONTH_ABBR as string,",
+				"          MONTH_NUM as decimal(2,0),",
+				"          QTR_NUM as decimal(2,0),",
+				"          YEAR_NUM as decimal(4,0),",
+				"          IS_WEEKEND as decimal(2,0),",
+				"          DI_JOB_ID as string,",
+				"          DI_LOAD_DT as timestamp",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'table') ~> srcDimDate",
+				"srcStgChicago, srcStgDallas union(byName: true)~> CombiningChicagoDallas",
+				"CombiningChicagoDallas aggregate() ~> AggregateColumns"
 			]
 		}
 	}
