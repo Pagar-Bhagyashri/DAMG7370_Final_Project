@@ -33,7 +33,15 @@
 					"name": "dimLocation2"
 				}
 			],
-			"sinks": [],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "DimLocation",
+						"type": "DatasetReference"
+					},
+					"name": "sinkDimLocation"
+				}
+			],
 			"transformations": [
 				{
 					"name": "combiningDatasets"
@@ -49,6 +57,12 @@
 				},
 				{
 					"name": "select1"
+				},
+				{
+					"name": "surrogateKey"
+				},
+				{
+					"name": "SelectingColumns"
 				}
 			],
 			"scriptLines": [
@@ -132,12 +146,13 @@
 				"          STATE,",
 				"          ZIP,",
 				"          LATITUDE,",
-				"          LONGITUDE),",
+				"          LONGITUDE,",
+				"          MAX_LOCATION_SK),",
 				"     count_num = count(INSPECTION_ID)) ~> Aggregate",
 				"Aggregate, dimLocation2 join(Aggregate@ADDRESS == dimLocation2@ADDRESS",
 				"     && Aggregate@CITY == dimLocation2@CITY",
 				"     && Aggregate@STATE == dimLocation2@STATE",
-				"     && Aggregate@ZIP == ZIP_CODE",
+				"     && Aggregate@ZIP == dimLocation2@ZIP",
 				"     && Aggregate@LATITUDE == dimLocation2@LATITUDE",
 				"     && Aggregate@LONGITUDE == dimLocation2@LONGITUDE,",
 				"     joinType:'left',",
@@ -151,19 +166,50 @@
 				"          ZIP = Aggregate@ZIP,",
 				"          LATITUDE = Aggregate@LATITUDE,",
 				"          LONGITUDE = Aggregate@LONGITUDE,",
-				"          count_num,",
 				"          LOCATION_SK,",
-				"          ADDRESS = dimLocation2@ADDRESS,",
-				"          CITY = dimLocation2@CITY,",
-				"          STATE = dimLocation2@STATE,",
-				"          ZIP_CODE,",
-				"          LATITUDE = dimLocation2@LATITUDE,",
-				"          LONGITUDE = dimLocation2@LONGITUDE,",
-				"          DI_JOB_ID,",
-				"          DI_LOAD_DT",
+				"          MAX_LOCATION_SK",
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
-				"     skipDuplicateMapOutputs: true) ~> select1"
+				"     skipDuplicateMapOutputs: true) ~> select1",
+				"select1 keyGenerate(output(Row_Count as long),",
+				"     startAt: 1L,",
+				"     stepValue: 1L) ~> surrogateKey",
+				"surrogateKey derive(DI_JOB_ID = \"Abbey\",",
+				"          DI_LOAD_DT = currentTimestamp(),",
+				"          ZIP = toInteger(ZIP),",
+				"          LOCATION_SK = MAX_LOCATION_SK + Row_Count) ~> SelectingColumns",
+				"SelectingColumns sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          LOCATION_SK as decimal(20,0),",
+				"          ADDRESS as string,",
+				"          CITY as string,",
+				"          STATE as string,",
+				"          ZIP as decimal(10,0),",
+				"          LATITUDE as double,",
+				"          LONGITUDE as double,",
+				"          DI_JOB_ID as string,",
+				"          DI_LOAD_DT as timestamp",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     stageInsert: true,",
+				"     mapColumn(",
+				"          LOCATION_SK,",
+				"          ADDRESS,",
+				"          CITY,",
+				"          STATE,",
+				"          ZIP,",
+				"          LATITUDE,",
+				"          LONGITUDE,",
+				"          DI_JOB_ID,",
+				"          DI_LOAD_DT",
+				"     )) ~> sinkDimLocation"
 			]
 		}
 	}
