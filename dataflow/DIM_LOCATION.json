@@ -6,40 +6,63 @@
 			"sources": [
 				{
 					"dataset": {
-						"referenceName": "CHICAGO",
+						"referenceName": "stgChicago",
 						"type": "DatasetReference"
 					},
-					"name": "STAGECHICAGO"
+					"name": "srcStgChicago"
 				},
 				{
 					"dataset": {
-						"referenceName": "SnowflakeTable10",
+						"referenceName": "stgDallas",
 						"type": "DatasetReference"
 					},
-					"name": "STAGEDALLAS"
+					"name": "srcStgDallas"
+				},
+				{
+					"dataset": {
+						"referenceName": "DimLocation",
+						"type": "DatasetReference"
+					},
+					"name": "dimLocation1"
+				},
+				{
+					"dataset": {
+						"referenceName": "DimLocation",
+						"type": "DatasetReference"
+					},
+					"name": "dimLocation2"
 				}
 			],
 			"sinks": [
 				{
 					"dataset": {
-						"referenceName": "SnowflakeTable11",
+						"referenceName": "DimLocation",
 						"type": "DatasetReference"
 					},
-					"name": "sink1"
+					"name": "sinkDimLocation"
 				}
 			],
 			"transformations": [
 				{
-					"name": "union1"
+					"name": "combiningDatasets"
+				},
+				{
+					"name": "joinCROSS"
+				},
+				{
+					"name": "Aggregate"
+				},
+				{
+					"name": "joinLefter"
 				},
 				{
 					"name": "select1"
 				},
 				{
-					"name": "surrogateKey1"
+					"name": "surrogateKey"
 				},
 				{
-					"name": "derivedColumn1"
+					"name": "SelectingColumns"
 				}
 			],
 			"scriptLines": [
@@ -66,7 +89,7 @@
 				"     ),",
 				"     allowSchemaDrift: true,",
 				"     validateSchema: false,",
-				"     format: 'table') ~> STAGECHICAGO",
+				"     format: 'table') ~> srcStgChicago",
 				"source(output(",
 				"          INSPECTION_ID as decimal(38,0),",
 				"          DBA_NAME as string,",
@@ -90,34 +113,81 @@
 				"     ),",
 				"     allowSchemaDrift: true,",
 				"     validateSchema: false,",
-				"     format: 'table') ~> STAGEDALLAS",
-				"STAGECHICAGO, STAGEDALLAS union(byName: true)~> union1",
-				"union1 select(mapColumn(",
-				"          ADDRESS,",
+				"     format: 'table') ~> srcStgDallas",
+				"source(output(",
+				"          MAX_LOCATION_SK as decimal(20,0)",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     query: 'SELECT NVL(MAX(LOCATION_SK),0) AS MAX_LOCATION_SK FROM FOOD_INSPECTION_SCHEMA.DIM_LOCATION',",
+				"     format: 'query') ~> dimLocation1",
+				"source(output(",
+				"          LOCATION_SK as decimal(20,0),",
+				"          ADDRESS as string,",
+				"          CITY as string,",
+				"          STATE as string,",
+				"          ZIP as decimal(10,0),",
+				"          LATITUDE as double,",
+				"          LONGITUDE as double,",
+				"          DI_JOB_ID as string,",
+				"          DI_LOAD_DT as timestamp",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'table') ~> dimLocation2",
+				"srcStgChicago, srcStgDallas union(byName: true)~> combiningDatasets",
+				"combiningDatasets, dimLocation1 join(1 == 1,",
+				"     joinType:'cross',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> joinCROSS",
+				"joinCROSS aggregate(groupBy(ADDRESS,",
 				"          CITY,",
 				"          STATE,",
 				"          ZIP,",
 				"          LATITUDE,",
-				"          LONGITUDE",
+				"          LONGITUDE,",
+				"          MAX_LOCATION_SK),",
+				"     count_num = count(INSPECTION_ID)) ~> Aggregate",
+				"Aggregate, dimLocation2 join(Aggregate@ADDRESS == dimLocation2@ADDRESS",
+				"     && Aggregate@CITY == dimLocation2@CITY",
+				"     && Aggregate@STATE == dimLocation2@STATE",
+				"     && Aggregate@ZIP == dimLocation2@ZIP",
+				"     && Aggregate@LATITUDE == dimLocation2@LATITUDE",
+				"     && Aggregate@LONGITUDE == dimLocation2@LONGITUDE,",
+				"     joinType:'left',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> joinLefter",
+				"joinLefter select(mapColumn(",
+				"          ADDRESS = Aggregate@ADDRESS,",
+				"          CITY = Aggregate@CITY,",
+				"          STATE = Aggregate@STATE,",
+				"          ZIP = Aggregate@ZIP,",
+				"          LATITUDE = Aggregate@LATITUDE,",
+				"          LONGITUDE = Aggregate@LONGITUDE,",
+				"          LOCATION_SK,",
+				"          MAX_LOCATION_SK",
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> select1",
-				"select1 keyGenerate(output(Location_SK as long),",
+				"select1 keyGenerate(output(Row_Count as long),",
 				"     startAt: 1L,",
-				"     stepValue: 1L) ~> surrogateKey1",
-				"surrogateKey1 derive(DI_JOB_ID = \"RARA\",",
-				"          DI_LOAD_DT = currentTimestamp()) ~> derivedColumn1",
-				"derivedColumn1 sink(allowSchemaDrift: true,",
+				"     stepValue: 1L) ~> surrogateKey",
+				"surrogateKey derive(DI_JOB_ID = \"Abbey\",",
+				"          DI_LOAD_DT = currentTimestamp(),",
+				"          ZIP = toInteger(ZIP),",
+				"          LOCATION_SK = MAX_LOCATION_SK + Row_Count) ~> SelectingColumns",
+				"SelectingColumns sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
 				"          LOCATION_SK as decimal(20,0),",
 				"          ADDRESS as string,",
 				"          CITY as string,",
 				"          STATE as string,",
-				"          ZIP_CODE as decimal(10,0),",
+				"          ZIP as decimal(10,0),",
 				"          LATITUDE as double,",
 				"          LONGITUDE as double,",
-				"          IS_CURRENT as decimal(2,0),",
 				"          DI_JOB_ID as string,",
 				"          DI_LOAD_DT as timestamp",
 				"     ),",
@@ -128,7 +198,18 @@
 				"     format: 'table',",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true,",
-				"     stageInsert: true) ~> sink1"
+				"     stageInsert: true,",
+				"     mapColumn(",
+				"          LOCATION_SK,",
+				"          ADDRESS,",
+				"          CITY,",
+				"          STATE,",
+				"          ZIP,",
+				"          LATITUDE,",
+				"          LONGITUDE,",
+				"          DI_JOB_ID,",
+				"          DI_LOAD_DT",
+				"     )) ~> sinkDimLocation"
 			]
 		}
 	}

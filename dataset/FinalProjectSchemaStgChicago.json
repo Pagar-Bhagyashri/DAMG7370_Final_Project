@@ -1,8 +1,8 @@
 {
-	"name": "SnowflakeTable10",
+	"name": "FinalProjectSchemaStgChicago",
 	"properties": {
 		"linkedServiceName": {
-			"referenceName": "FinalProjectSnowflake",
+			"referenceName": "Snowflake1",
 			"type": "LinkedServiceReference"
 		},
 		"annotations": [],
@@ -60,13 +60,13 @@
 				"name": "LATITUDE",
 				"type": "NUMBER",
 				"precision": 38,
-				"scale": 0
+				"scale": 16
 			},
 			{
 				"name": "LONGITUDE",
 				"type": "NUMBER",
 				"precision": 38,
-				"scale": 0
+				"scale": 16
 			},
 			{
 				"name": "VIOLATION_CATEGORY_ID",
@@ -99,7 +99,7 @@
 		],
 		"typeProperties": {
 			"schema": "FINAL_PROJECT_SCHEMA",
-			"table": "STG_DALLAS"
+			"table": "STG_CHICAGO"
 		}
 	}
 }
