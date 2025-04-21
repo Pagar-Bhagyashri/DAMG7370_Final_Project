@@ -25,7 +25,7 @@
 			"sinks": [
 				{
 					"dataset": {
-						"referenceName": "SnowflakeTable6",
+						"referenceName": "DimInspectionType",
 						"type": "DatasetReference"
 					},
 					"name": "sink1"
