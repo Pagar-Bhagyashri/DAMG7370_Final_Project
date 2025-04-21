@@ -1,0 +1,112 @@
+{
+	"name": "CHICAGO_MASTER",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "CHICAGO_MASTER",
+						"type": "DatasetReference"
+					},
+					"name": "source1"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "SnowflakeTable2",
+						"type": "DatasetReference"
+					},
+					"name": "CHICAGO"
+				}
+			],
+			"transformations": [
+				{
+					"name": "surrogateKey1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          Inspection_ID as integer,",
+				"          DBA_Name as string,",
+				"          AKA_Name as string,",
+				"          Facility_Type as string,",
+				"          Address as string,",
+				"          City as string,",
+				"          State as string,",
+				"          Zip as double,",
+				"          Inspection_Date as string,",
+				"          Inspection_Type as string,",
+				"          Inspection_Result as string,",
+				"          Latitude as string,",
+				"          Longitude as string,",
+				"          Violation_Category_ID as string,",
+				"          Violation_Category as string,",
+				"          Violation_Comments as string,",
+				"          Violation_Point as long,",
+				"          Risk_Level as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     format: 'parquet') ~> source1",
+				"source1 keyGenerate(output(ROW_NUM as long),",
+				"     startAt: 1L,",
+				"     stepValue: 1L) ~> surrogateKey1",
+				"surrogateKey1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          INSPECTION_ID as decimal(38,0),",
+				"          DBA_NAME as string,",
+				"          AKA_NAME as string,",
+				"          FACILITY_TYPE as string,",
+				"          ADDRESS as string,",
+				"          CITY as string,",
+				"          STATE as string,",
+				"          ZIP as decimal(38,0),",
+				"          INSPECTION_DATE as date,",
+				"          INSPECTION_TYPE as string,",
+				"          INSPECTION_RESULT as string,",
+				"          LATITUDE as decimal(38,16),",
+				"          LONGITUDE as decimal(38,16),",
+				"          VIOLATION_CATEGORY_ID as decimal(38,0),",
+				"          VIOLATION_CATEGORY as string,",
+				"          VIOLATION_COMMENTS as string,",
+				"          VIOLATION_POINT as decimal(38,0),",
+				"          RISK_LEVEL as string,",
+				"          SURROGATE_KEY as string",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     stageInsert: true,",
+				"     mapColumn(",
+				"          INSPECTION_ID = Inspection_ID,",
+				"          DBA_NAME = DBA_Name,",
+				"          AKA_NAME = AKA_Name,",
+				"          FACILITY_TYPE = Facility_Type,",
+				"          ADDRESS = Address,",
+				"          CITY = City,",
+				"          STATE = State,",
+				"          ZIP = Zip,",
+				"          INSPECTION_DATE = Inspection_Date,",
+				"          INSPECTION_TYPE = Inspection_Type,",
+				"          INSPECTION_RESULT = Inspection_Result,",
+				"          LATITUDE = Latitude,",
+				"          LONGITUDE = Longitude,",
+				"          VIOLATION_CATEGORY_ID = Violation_Category_ID,",
+				"          VIOLATION_CATEGORY = Violation_Category,",
+				"          VIOLATION_COMMENTS = Violation_Comments,",
+				"          VIOLATION_POINT = Violation_Point,",
+				"          RISK_LEVEL = Risk_Level,",
+				"          SURROGATE_KEY = ROW_NUM",
+				"     )) ~> CHICAGO"
+			]
+		}
+	}
+}
