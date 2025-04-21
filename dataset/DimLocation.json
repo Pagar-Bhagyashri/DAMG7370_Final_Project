@@ -27,7 +27,7 @@
 				"type": "VARCHAR"
 			},
 			{
-				"name": "ZIP_CODE",
+				"name": "ZIP",
 				"type": "NUMBER",
 				"precision": 10,
 				"scale": 0

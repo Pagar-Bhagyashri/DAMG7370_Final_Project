@@ -46,6 +46,9 @@
 				},
 				{
 					"name": "joinLefter"
+				},
+				{
+					"name": "select1"
 				}
 			],
 			"scriptLines": [
@@ -109,7 +112,7 @@
 				"          ADDRESS as string,",
 				"          CITY as string,",
 				"          STATE as string,",
-				"          ZIP_CODE as decimal(10,0),",
+				"          ZIP as decimal(10,0),",
 				"          LATITUDE as double,",
 				"          LONGITUDE as double,",
 				"          DI_JOB_ID as string,",
@@ -134,13 +137,33 @@
 				"Aggregate, dimLocation2 join(Aggregate@ADDRESS == dimLocation2@ADDRESS",
 				"     && Aggregate@CITY == dimLocation2@CITY",
 				"     && Aggregate@STATE == dimLocation2@STATE",
-				"     && ZIP == ZIP_CODE",
+				"     && Aggregate@ZIP == ZIP_CODE",
 				"     && Aggregate@LATITUDE == dimLocation2@LATITUDE",
 				"     && Aggregate@LONGITUDE == dimLocation2@LONGITUDE,",
 				"     joinType:'left',",
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
-				"     broadcast: 'auto')~> joinLefter"
+				"     broadcast: 'auto')~> joinLefter",
+				"joinLefter select(mapColumn(",
+				"          ADDRESS = Aggregate@ADDRESS,",
+				"          CITY = Aggregate@CITY,",
+				"          STATE = Aggregate@STATE,",
+				"          ZIP = Aggregate@ZIP,",
+				"          LATITUDE = Aggregate@LATITUDE,",
+				"          LONGITUDE = Aggregate@LONGITUDE,",
+				"          count_num,",
+				"          LOCATION_SK,",
+				"          ADDRESS = dimLocation2@ADDRESS,",
+				"          CITY = dimLocation2@CITY,",
+				"          STATE = dimLocation2@STATE,",
+				"          ZIP_CODE,",
+				"          LATITUDE = dimLocation2@LATITUDE,",
+				"          LONGITUDE = dimLocation2@LONGITUDE,",
+				"          DI_JOB_ID,",
+				"          DI_LOAD_DT",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select1"
 			]
 		}
 	}
