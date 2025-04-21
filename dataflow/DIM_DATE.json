@@ -5,17 +5,9 @@
 		"typeProperties": {
 			"sources": [
 				{
-					"dataset": {
-						"referenceName": "SnowflakeTable12",
-						"type": "DatasetReference"
-					},
 					"name": "STAGEDDALLAS"
 				},
 				{
-					"dataset": {
-						"referenceName": "SnowflakeTable13",
-						"type": "DatasetReference"
-					},
 					"name": "STAGEDCHICAGO"
 				}
 			],
@@ -51,8 +43,7 @@
 				"          SURROGATE_KEY as string",
 				"     ),",
 				"     allowSchemaDrift: true,",
-				"     validateSchema: false,",
-				"     format: 'table') ~> STAGEDDALLAS",
+				"     validateSchema: false) ~> STAGEDDALLAS",
 				"source(output(",
 				"          INSPECTION_ID as decimal(38,0),",
 				"          DBA_NAME as string,",
@@ -75,8 +66,7 @@
 				"          SURROGATE_KEY as string",
 				"     ),",
 				"     allowSchemaDrift: true,",
-				"     validateSchema: false,",
-				"     format: 'table') ~> STAGEDCHICAGO",
+				"     validateSchema: false) ~> STAGEDCHICAGO",
 				"STAGEDDALLAS, STAGEDCHICAGO union(byName: true)~> union1",
 				"union1 select(mapColumn(",
 				"          INSPECTION_ID,",

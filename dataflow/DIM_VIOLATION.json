@@ -6,14 +6,14 @@
 			"sources": [
 				{
 					"dataset": {
-						"referenceName": "SnowflakeTable1",
+						"referenceName": "FinalProjectSchemaStagingDallas",
 						"type": "DatasetReference"
 					},
 					"name": "STAGEDDALLAS"
 				},
 				{
 					"dataset": {
-						"referenceName": "SnowflakeTable2",
+						"referenceName": "FinalProjectSchemaStageChicago",
 						"type": "DatasetReference"
 					},
 					"name": "STAGEDCHICAGO"
@@ -22,7 +22,7 @@
 			"sinks": [
 				{
 					"dataset": {
-						"referenceName": "SnowflakeTable3",
+						"referenceName": "DimViolation",
 						"type": "DatasetReference"
 					},
 					"name": "sink1"

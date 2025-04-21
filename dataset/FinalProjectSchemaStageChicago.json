@@ -1,5 +1,5 @@
 {
-	"name": "SnowflakeTable13",
+	"name": "FinalProjectSchemaStageChicago",
 	"properties": {
 		"linkedServiceName": {
 			"referenceName": "Snowflake1",

@@ -5,14 +5,151 @@
 		"typeProperties": {
 			"sources": [
 				{
-					"name": "source1"
+					"dataset": {
+						"referenceName": "stgChicago",
+						"type": "DatasetReference"
+					},
+					"name": "srcStgChicago"
+				},
+				{
+					"dataset": {
+						"referenceName": "stgDallas",
+						"type": "DatasetReference"
+					},
+					"name": "srcStgDallas"
+				},
+				{
+					"dataset": {
+						"referenceName": "DimFacility",
+						"type": "DatasetReference"
+					},
+					"name": "srcDimFacility"
+				},
+				{
+					"dataset": {
+						"referenceName": "DimInspectionType",
+						"type": "DatasetReference"
+					},
+					"name": "srcDimInspectionType"
+				},
+				{
+					"dataset": {
+						"referenceName": "DimLocation",
+						"type": "DatasetReference"
+					},
+					"name": "srcDimLocation"
+				},
+				{
+					"dataset": {
+						"referenceName": "DimViolation",
+						"type": "DatasetReference"
+					},
+					"name": "srcDimViolation"
+				},
+				{
+					"name": "srcDimDate"
 				}
 			],
 			"sinks": [],
 			"transformations": [],
 			"scriptLines": [
+				"source(output(",
+				"          INSPECTION_ID as decimal(38,0),",
+				"          DBA_NAME as string,",
+				"          AKA_NAME as string,",
+				"          FACILITY_TYPE as string,",
+				"          ADDRESS as string,",
+				"          CITY as string,",
+				"          STATE as string,",
+				"          ZIP as decimal(38,0),",
+				"          INSPECTION_DATE as date,",
+				"          INSPECTION_TYPE as string,",
+				"          INSPECTION_RESULT as string,",
+				"          LATITUDE as decimal(38,16),",
+				"          LONGITUDE as decimal(38,16),",
+				"          VIOLATION_CATEGORY_ID as decimal(38,0),",
+				"          VIOLATION_CATEGORY as string,",
+				"          VIOLATION_COMMENTS as string,",
+				"          VIOLATION_POINT as decimal(38,0),",
+				"          RISK_LEVEL as string,",
+				"          SURROGATE_KEY as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'table') ~> srcStgChicago",
+				"source(output(",
+				"          INSPECTION_ID as decimal(38,0),",
+				"          DBA_NAME as string,",
+				"          AKA_NAME as string,",
+				"          FACILITY_TYPE as string,",
+				"          ADDRESS as string,",
+				"          CITY as string,",
+				"          STATE as string,",
+				"          ZIP as decimal(38,0),",
+				"          INSPECTION_DATE as date,",
+				"          INSPECTION_TYPE as string,",
+				"          INSPECTION_RESULT as string,",
+				"          LATITUDE as decimal(38,0),",
+				"          LONGITUDE as decimal(38,0),",
+				"          VIOLATION_CATEGORY_ID as decimal(38,0),",
+				"          VIOLATION_CATEGORY as string,",
+				"          VIOLATION_COMMENTS as string,",
+				"          VIOLATION_POINT as decimal(38,0),",
+				"          RISK_LEVEL as string,",
+				"          SURROGATE_KEY as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'table') ~> srcStgDallas",
+				"source(output(",
+				"          FACILITY_SK as decimal(15,0),",
+				"          FACILITY_TYPE as string,",
+				"          AKA_NAME as string,",
+				"          DBA_NAME as string,",
+				"          DI_JOB_ID as string,",
+				"          DI_LOAD_DT as date",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'table') ~> srcDimFacility",
+				"source(output(",
+				"          INSPECTION_TYPE_SK as decimal(30,0),",
+				"          INSPECTION_ID as decimal(10,0),",
+				"          INSPECTION_TYPE as string,",
+				"          INSPECTION_RESULT as string,",
+				"          DI_JOB_ID as string,",
+				"          DI_LOAD_DT as timestamp",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'table') ~> srcDimInspectionType",
+				"source(output(",
+				"          LOCATION_SK as decimal(20,0),",
+				"          ADDRESS as string,",
+				"          CITY as string,",
+				"          STATE as string,",
+				"          ZIP as decimal(10,0),",
+				"          LATITUDE as double,",
+				"          LONGITUDE as double,",
+				"          DI_JOB_ID as string,",
+				"          DI_LOAD_DT as timestamp",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'table') ~> srcDimLocation",
+				"source(output(",
+				"          VIOLATION_SK as decimal(25,0),",
+				"          VIOLATION_CAT_ID as decimal(10,0),",
+				"          VIOLATION_CAT as string,",
+				"          VIOLATION_SCORE as decimal(2,0),",
+				"          DI_JOB_ID as string,",
+				"          DI_LOAD_DT as timestamp",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'table') ~> srcDimViolation",
 				"source(allowSchemaDrift: true,",
-				"     validateSchema: false) ~> source1"
+				"     validateSchema: false) ~> srcDimDate"
 			]
 		}
 	}

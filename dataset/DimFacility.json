@@ -1,5 +1,5 @@
 {
-	"name": "SnowflakeTable3",
+	"name": "DimFacility",
 	"properties": {
 		"linkedServiceName": {
 			"referenceName": "Snowflake1",
@@ -9,26 +9,22 @@
 		"type": "SnowflakeV2Table",
 		"schema": [
 			{
-				"name": "VIOLATION_SK",
+				"name": "FACILITY_SK",
 				"type": "NUMBER",
-				"precision": 25,
+				"precision": 15,
 				"scale": 0
 			},
 			{
-				"name": "VIOLATION_CAT_ID",
-				"type": "NUMBER",
-				"precision": 10,
-				"scale": 0
-			},
-			{
-				"name": "VIOLATION_CAT",
+				"name": "FACILITY_TYPE",
 				"type": "VARCHAR"
 			},
 			{
-				"name": "VIOLATION_SCORE",
-				"type": "NUMBER",
-				"precision": 2,
-				"scale": 0
+				"name": "AKA_NAME",
+				"type": "VARCHAR"
+			},
+			{
+				"name": "DBA_NAME",
+				"type": "VARCHAR"
 			},
 			{
 				"name": "DI_JOB_ID",
@@ -36,12 +32,12 @@
 			},
 			{
 				"name": "DI_LOAD_DT",
-				"type": "TIMESTAMP_NTZ"
+				"type": "DATE"
 			}
 		],
 		"typeProperties": {
 			"schema": "FOOD_INSPECTION_SCHEMA",
-			"table": "DIM_VIOLATION"
+			"table": "DIM_FACILITY"
 		}
 	}
 }
