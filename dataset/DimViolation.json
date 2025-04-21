@@ -1,0 +1,47 @@
+{
+	"name": "DimViolation",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "Snowflake1",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "SnowflakeV2Table",
+		"schema": [
+			{
+				"name": "VIOLATION_SK",
+				"type": "NUMBER",
+				"precision": 25,
+				"scale": 0
+			},
+			{
+				"name": "VIOLATION_CAT_ID",
+				"type": "NUMBER",
+				"precision": 10,
+				"scale": 0
+			},
+			{
+				"name": "VIOLATION_CAT",
+				"type": "VARCHAR"
+			},
+			{
+				"name": "VIOLATION_SCORE",
+				"type": "NUMBER",
+				"precision": 2,
+				"scale": 0
+			},
+			{
+				"name": "DI_JOB_ID",
+				"type": "VARCHAR"
+			},
+			{
+				"name": "DI_LOAD_DT",
+				"type": "TIMESTAMP_NTZ"
+			}
+		],
+		"typeProperties": {
+			"schema": "FOOD_INSPECTION_SCHEMA",
+			"table": "DIM_VIOLATION"
+		}
+	}
+}

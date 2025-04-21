@@ -1,0 +1,151 @@
+{
+	"name": "dataflow1",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "stgChicago",
+						"type": "DatasetReference"
+					},
+					"name": "stgChicago"
+				},
+				{
+					"dataset": {
+						"referenceName": "stgDallas",
+						"type": "DatasetReference"
+					},
+					"name": "stgDallas"
+				},
+				{
+					"dataset": {
+						"referenceName": "DimInspectionType",
+						"type": "DatasetReference"
+					},
+					"name": "SrcDimInspectionType"
+				},
+				{
+					"dataset": {
+						"referenceName": "DimInspectionType",
+						"type": "DatasetReference"
+					},
+					"name": "SrcDimInspectionType2"
+				}
+			],
+			"sinks": [],
+			"transformations": [
+				{
+					"name": "unionChicagoAndDallas"
+				},
+				{
+					"name": "joinCross"
+				},
+				{
+					"name": "Aggregate"
+				},
+				{
+					"name": "joinLeftOuter"
+				},
+				{
+					"name": "select1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          INSPECTION_ID as decimal(38,0),",
+				"          DBA_NAME as string,",
+				"          AKA_NAME as string,",
+				"          FACILITY_TYPE as string,",
+				"          ADDRESS as string,",
+				"          CITY as string,",
+				"          STATE as string,",
+				"          ZIP as decimal(38,0),",
+				"          INSPECTION_DATE as date,",
+				"          INSPECTION_TYPE as string,",
+				"          INSPECTION_RESULT as string,",
+				"          LATITUDE as decimal(38,16),",
+				"          LONGITUDE as decimal(38,16),",
+				"          VIOLATION_CATEGORY_ID as decimal(38,0),",
+				"          VIOLATION_CATEGORY as string,",
+				"          VIOLATION_COMMENTS as string,",
+				"          VIOLATION_POINT as decimal(38,0),",
+				"          RISK_LEVEL as string,",
+				"          SURROGATE_KEY as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'table') ~> stgChicago",
+				"source(output(",
+				"          INSPECTION_ID as decimal(38,0),",
+				"          DBA_NAME as string,",
+				"          AKA_NAME as string,",
+				"          FACILITY_TYPE as string,",
+				"          ADDRESS as string,",
+				"          CITY as string,",
+				"          STATE as string,",
+				"          ZIP as decimal(38,0),",
+				"          INSPECTION_DATE as date,",
+				"          INSPECTION_TYPE as string,",
+				"          INSPECTION_RESULT as string,",
+				"          LATITUDE as decimal(38,0),",
+				"          LONGITUDE as decimal(38,0),",
+				"          VIOLATION_CATEGORY_ID as decimal(38,0),",
+				"          VIOLATION_CATEGORY as string,",
+				"          VIOLATION_COMMENTS as string,",
+				"          VIOLATION_POINT as decimal(38,0),",
+				"          RISK_LEVEL as string,",
+				"          SURROGATE_KEY as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'table') ~> stgDallas",
+				"source(output(",
+				"          MAX_INSPECTION_TYPE as decimal(30,0)",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     query: 'SELECT NVL(MAX(INSPECTION_TYPE_SK),0) AS MAX_INSPECTION_TYPE FROM FOOD_INSPECTION_SCHEMA.DIM_INSPECTION_TYPE',",
+				"     format: 'query') ~> SrcDimInspectionType",
+				"source(output(",
+				"          INSPECTION_TYPE_SK as decimal(30,0),",
+				"          INSPECTION_ID as decimal(10,0),",
+				"          INSPECTION_TYPE as string,",
+				"          INSPECTION_RESULT as string,",
+				"          DI_JOB_ID as string,",
+				"          DI_LOAD_DT as timestamp",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'table') ~> SrcDimInspectionType2",
+				"stgChicago, stgDallas union(byName: true)~> unionChicagoAndDallas",
+				"unionChicagoAndDallas, SrcDimInspectionType join(1 == 1,",
+				"     joinType:'cross',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> joinCross",
+				"joinCross aggregate(groupBy(INSPECTION_TYPE,",
+				"          INSPECTION_RESULT),",
+				"     Count_Row = count(INSPECTION_ID)) ~> Aggregate",
+				"Aggregate, SrcDimInspectionType2 join(Aggregate@INSPECTION_TYPE == SrcDimInspectionType2@INSPECTION_TYPE",
+				"     && Aggregate@INSPECTION_RESULT == ERROR_FUNCTION(''),",
+				"     joinType:'left',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> joinLeftOuter",
+				"joinLeftOuter select(mapColumn(",
+				"          INSPECTION_TYPE = Aggregate@INSPECTION_TYPE,",
+				"          INSPECTION_RESULT = Aggregate@INSPECTION_RESULT,",
+				"          Count_Row,",
+				"          INSPECTION_TYPE_SK,",
+				"          INSPECTION_ID,",
+				"          INSPECTION_TYPE = SrcDimInspectionType2@INSPECTION_TYPE,",
+				"          DI_JOB_ID,",
+				"          DI_LOAD_DT",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select1"
+			]
+		}
+	}
+}

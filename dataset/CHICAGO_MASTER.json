@@ -1,5 +1,5 @@
 {
-	"name": "DALLAS_22_23",
+	"name": "CHICAGO_MASTER",
 	"properties": {
 		"linkedServiceName": {
 			"referenceName": "FinalProjectAzureDataLakeStorage",
@@ -10,7 +10,7 @@
 		"typeProperties": {
 			"location": {
 				"type": "AzureBlobFSLocation",
-				"fileName": "DALLAS 22-23.parquet",
+				"fileName": "CHICAGO MASTER.parquet",
 				"fileSystem": "silver"
 			},
 			"compressionCodec": "snappy"
@@ -18,38 +18,14 @@
 		"schema": [
 			{
 				"name": "Inspection_ID",
-				"type": "UTF8"
+				"type": "INT32"
 			},
 			{
 				"name": "DBA_Name",
 				"type": "UTF8"
 			},
 			{
-				"name": "Inspection_Type",
-				"type": "UTF8"
-			},
-			{
-				"name": "Inspection_Date",
-				"type": "UTF8"
-			},
-			{
-				"name": "Zip_Code",
-				"type": "INT64"
-			},
-			{
-				"name": "Address",
-				"type": "UTF8"
-			},
-			{
-				"name": "Voilation_Point",
-				"type": "INT64"
-			},
-			{
-				"name": "Violation_Comment",
-				"type": "UTF8"
-			},
-			{
-				"name": "State",
+				"name": "AKA_Name",
 				"type": "UTF8"
 			},
 			{
@@ -57,15 +33,31 @@
 				"type": "UTF8"
 			},
 			{
+				"name": "Address",
+				"type": "UTF8"
+			},
+			{
 				"name": "City",
 				"type": "UTF8"
 			},
 			{
-				"name": "Violations_Category_Id",
-				"type": "INT64"
+				"name": "State",
+				"type": "UTF8"
 			},
 			{
-				"name": "Violations_Category",
+				"name": "Zip",
+				"type": "DOUBLE"
+			},
+			{
+				"name": "Inspection_Date",
+				"type": "UTF8"
+			},
+			{
+				"name": "Inspection_Type",
+				"type": "UTF8"
+			},
+			{
+				"name": "Inspection_Result",
 				"type": "UTF8"
 			},
 			{
@@ -77,15 +69,23 @@
 				"type": "UTF8"
 			},
 			{
+				"name": "Violation_Category_ID",
+				"type": "UTF8"
+			},
+			{
+				"name": "Violation_Category",
+				"type": "UTF8"
+			},
+			{
+				"name": "Violation_Comments",
+				"type": "UTF8"
+			},
+			{
+				"name": "Violation_Point",
+				"type": "INT64"
+			},
+			{
 				"name": "Risk_Level",
-				"type": "UTF8"
-			},
-			{
-				"name": "Inspection_Result",
-				"type": "UTF8"
-			},
-			{
-				"name": "AKA_Name",
 				"type": "UTF8"
 			}
 		]
