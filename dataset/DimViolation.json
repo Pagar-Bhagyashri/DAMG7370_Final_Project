@@ -25,10 +25,8 @@
 				"type": "VARCHAR"
 			},
 			{
-				"name": "VIOLATION_SCORE",
-				"type": "NUMBER",
-				"precision": 2,
-				"scale": 0
+				"name": "VIOLATION_COMMENTS",
+				"type": "VARCHAR"
 			},
 			{
 				"name": "DI_JOB_ID",

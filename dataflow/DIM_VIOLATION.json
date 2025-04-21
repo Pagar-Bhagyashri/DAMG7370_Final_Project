@@ -49,6 +49,12 @@
 				},
 				{
 					"name": "DeDuplicatedData"
+				},
+				{
+					"name": "aggregate1"
+				},
+				{
+					"name": "select2"
 				}
 			],
 			"scriptLines": [
@@ -124,13 +130,30 @@
 				"     IsLatest == false(),",
 				"     disjoint: false) ~> SplitTheDuplicates@(UniqueRecords, LatestDuplicates, OlderDuplicates)",
 				"SplitTheDuplicates@UniqueRecords, SplitTheDuplicates@LatestDuplicates union(byName: true)~> DeDuplicatedData",
-				"derivedColumn1 sink(allowSchemaDrift: true,",
+				"derivedColumn1 aggregate(groupBy(VIOLATION_CATEGORY,",
+				"          VIOLATION_COMMENTS,",
+				"          VIOLATION_CATEGORY_ID,",
+				"          DI_JOB_ID,",
+				"          VIOLATION_SK,",
+				"          DI_LOAD_DT),",
+				"     countrec = count(VIOLATION_CATEGORY_ID)) ~> aggregate1",
+				"aggregate1 select(mapColumn(",
+				"          VIOLATION_SK,",
+				"          VIOLATION_CATEGORY_ID,",
+				"          VIOLATION_CATEGORY,",
+				"          VIOLATION_COMMENTS,",
+				"          DI_JOB_ID,",
+				"          DI_LOAD_DT",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select2",
+				"select2 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
 				"          VIOLATION_SK as decimal(25,0),",
 				"          VIOLATION_CAT_ID as decimal(10,0),",
 				"          VIOLATION_CAT as string,",
-				"          VIOLATION_SCORE as decimal(2,0),",
+				"          VIOLATION_COMMENTS as string,",
 				"          DI_JOB_ID as string,",
 				"          DI_LOAD_DT as timestamp",
 				"     ),",
