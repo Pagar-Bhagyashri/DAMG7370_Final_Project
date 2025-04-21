@@ -1,5 +1,5 @@
 {
-	"name": "SnowflakeTable4",
+	"name": "stgChicago",
 	"properties": {
 		"linkedServiceName": {
 			"referenceName": "Snowflake1",
