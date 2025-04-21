@@ -99,6 +99,7 @@
 				"          CITY = City,",
 				"          STATE = State,",
 				"          ZIP = Zip,",
+				"          INSPECTION_DATE = Inspection_Date,",
 				"          INSPECTION_TYPE = Inspection_Type,",
 				"          INSPECTION_RESULT = Inspection_Result,",
 				"          LATITUDE = Latitude,",
@@ -107,7 +108,8 @@
 				"          VIOLATION_CATEGORY = Violation_Category,",
 				"          VIOLATION_COMMENTS = Violation_Comments,",
 				"          VIOLATION_POINT = Violation_Point,",
-				"          RISK_LEVEL = Risk_Level",
+				"          RISK_LEVEL = Risk_Level,",
+				"          SURROGATE_KEY = ROW_NUM",
 				"     )) ~> STGDALLAS"
 			]
 		}
