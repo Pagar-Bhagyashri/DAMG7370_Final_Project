@@ -55,7 +55,7 @@
 				}
 			},
 			{
-				"name": "Data flow1",
+				"name": "DIM_LOCATION",
 				"type": "ExecuteDataFlow",
 				"dependsOn": [],
 				"policy": {
@@ -68,11 +68,8 @@
 				"userProperties": [],
 				"typeProperties": {
 					"dataflow": {
-						"referenceName": "DIM_DATE",
-						"type": "DataFlowReference",
-						"parameters": {
-							"JOB_ID": "\"11\""
-						}
+						"referenceName": "DIM_LOCATION",
+						"type": "DataFlowReference"
 					},
 					"compute": {
 						"coreCount": 8,
