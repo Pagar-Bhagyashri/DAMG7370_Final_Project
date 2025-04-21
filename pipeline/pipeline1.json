@@ -83,8 +83,6 @@
 			{
 				"name": "FCT_INSPECTION",
 				"type": "ExecuteDataFlow",
-				"state": "Inactive",
-				"onInactiveMarkAs": "Succeeded",
 				"dependsOn": [],
 				"policy": {
 					"timeout": "0.02:00:00",
