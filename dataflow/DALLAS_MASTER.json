@@ -24,6 +24,9 @@
 			"transformations": [
 				{
 					"name": "surrogateKey1"
+				},
+				{
+					"name": "ChangingDataTypes"
 				}
 			],
 			"scriptLines": [
@@ -54,7 +57,9 @@
 				"source1 keyGenerate(output(ROW_NUM as long),",
 				"     startAt: 1L,",
 				"     stepValue: 1L) ~> surrogateKey1",
-				"surrogateKey1 sink(allowSchemaDrift: true,",
+				"surrogateKey1 derive(Latitude = toDecimal(Latitude, 28, 8),",
+				"          Longitude = toDecimal(Longitude, 28, 8)) ~> ChangingDataTypes",
+				"ChangingDataTypes sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
 				"          INSPECTION_ID as decimal(38,0),",

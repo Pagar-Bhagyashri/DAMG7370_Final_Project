@@ -61,6 +61,24 @@
 				},
 				{
 					"name": "AggregateColumns"
+				},
+				{
+					"name": "joinDimFacility"
+				},
+				{
+					"name": "joinDimInspectionType"
+				},
+				{
+					"name": "joinDimLocation"
+				},
+				{
+					"name": "joinDimViolation"
+				},
+				{
+					"name": "joinDimDate"
+				},
+				{
+					"name": "derivedColumn1"
 				}
 			],
 			"scriptLines": [
@@ -178,7 +196,54 @@
 				"     validateSchema: false,",
 				"     format: 'table') ~> srcDimDate",
 				"srcStgChicago, srcStgDallas union(byName: true)~> CombiningChicagoDallas",
-				"CombiningChicagoDallas aggregate() ~> AggregateColumns"
+				"CombiningChicagoDallas aggregate(groupBy(INSPECTION_ID,",
+				"          DBA_NAME,",
+				"          AKA_NAME,",
+				"          FACILITY_TYPE,",
+				"          ADDRESS,",
+				"          CITY,",
+				"          STATE,",
+				"          ZIP,",
+				"          INSPECTION_DATE,",
+				"          INSPECTION_TYPE,",
+				"          INSPECTION_RESULT,",
+				"          LATITUDE,",
+				"          LONGITUDE,",
+				"          VIOLATION_CATEGORY_ID,",
+				"          VIOLATION_CATEGORY,",
+				"          VIOLATION_COMMENTS,",
+				"          VIOLATION_POINT,",
+				"          RISK_LEVEL,",
+				"          SURROGATE_KEY),",
+				"     count_num = count(INSPECTION_ID)) ~> AggregateColumns",
+				"AggregateColumns, srcDimFacility join(AggregateColumns@FACILITY_TYPE == srcDimFacility@FACILITY_TYPE",
+				"     && AggregateColumns@AKA_NAME == srcDimFacility@AKA_NAME,",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> joinDimFacility",
+				"joinDimFacility, srcDimInspectionType join(AggregateColumns@INSPECTION_ID == srcDimInspectionType@INSPECTION_ID",
+				"     && AggregateColumns@INSPECTION_RESULT == srcDimInspectionType@INSPECTION_RESULT,",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> joinDimInspectionType",
+				"joinDimInspectionType, srcDimLocation join(ERROR_FUNCTION('') == srcDimLocation@CITY,",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> joinDimLocation",
+				"joinDimLocation join(ERROR_FUNCTION('') == ERROR_FUNCTION(''),",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> joinDimViolation",
+				"joinDimViolation join(ERROR_FUNCTION('') == ERROR_FUNCTION(''),",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> joinDimDate",
+				"srcStgDallas derive(LATITUDE = ERROR_FUNCTION('')) ~> derivedColumn1"
 			]
 		}
 	}
