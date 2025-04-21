@@ -1,5 +1,5 @@
 {
-	"name": "SnowflakeTable11",
+	"name": "DimLocation",
 	"properties": {
 		"linkedServiceName": {
 			"referenceName": "Snowflake1",
@@ -39,12 +39,6 @@
 			{
 				"name": "LONGITUDE",
 				"type": "FLOAT"
-			},
-			{
-				"name": "IS_CURRENT",
-				"type": "NUMBER",
-				"precision": 2,
-				"scale": 0
 			},
 			{
 				"name": "DI_JOB_ID",

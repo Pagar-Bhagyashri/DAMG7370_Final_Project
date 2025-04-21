@@ -6,40 +6,46 @@
 			"sources": [
 				{
 					"dataset": {
-						"referenceName": "CHICAGO",
+						"referenceName": "stgChicago",
 						"type": "DatasetReference"
 					},
-					"name": "STAGECHICAGO"
+					"name": "srcStgChicago"
 				},
 				{
 					"dataset": {
-						"referenceName": "SnowflakeTable10",
+						"referenceName": "stgDallas",
 						"type": "DatasetReference"
 					},
-					"name": "STAGEDALLAS"
-				}
-			],
-			"sinks": [
+					"name": "srcStgDallas"
+				},
 				{
 					"dataset": {
-						"referenceName": "SnowflakeTable11",
+						"referenceName": "DimLocation",
 						"type": "DatasetReference"
 					},
-					"name": "sink1"
+					"name": "dimLocation1"
+				},
+				{
+					"dataset": {
+						"referenceName": "DimLocation",
+						"type": "DatasetReference"
+					},
+					"name": "dimLocation2"
 				}
 			],
+			"sinks": [],
 			"transformations": [
 				{
-					"name": "union1"
+					"name": "combiningDatasets"
 				},
 				{
-					"name": "select1"
+					"name": "joinCROSS"
 				},
 				{
-					"name": "surrogateKey1"
+					"name": "Aggregate"
 				},
 				{
-					"name": "derivedColumn1"
+					"name": "joinLefter"
 				}
 			],
 			"scriptLines": [
@@ -66,7 +72,7 @@
 				"     ),",
 				"     allowSchemaDrift: true,",
 				"     validateSchema: false,",
-				"     format: 'table') ~> STAGECHICAGO",
+				"     format: 'table') ~> srcStgChicago",
 				"source(output(",
 				"          INSPECTION_ID as decimal(38,0),",
 				"          DBA_NAME as string,",
@@ -90,26 +96,15 @@
 				"     ),",
 				"     allowSchemaDrift: true,",
 				"     validateSchema: false,",
-				"     format: 'table') ~> STAGEDALLAS",
-				"STAGECHICAGO, STAGEDALLAS union(byName: true)~> union1",
-				"union1 select(mapColumn(",
-				"          ADDRESS,",
-				"          CITY,",
-				"          STATE,",
-				"          ZIP,",
-				"          LATITUDE,",
-				"          LONGITUDE",
+				"     format: 'table') ~> srcStgDallas",
+				"source(output(",
+				"          MAX_LOCATION_SK as decimal(20,0)",
 				"     ),",
-				"     skipDuplicateMapInputs: true,",
-				"     skipDuplicateMapOutputs: true) ~> select1",
-				"select1 keyGenerate(output(Location_SK as long),",
-				"     startAt: 1L,",
-				"     stepValue: 1L) ~> surrogateKey1",
-				"surrogateKey1 derive(DI_JOB_ID = \"RARA\",",
-				"          DI_LOAD_DT = currentTimestamp()) ~> derivedColumn1",
-				"derivedColumn1 sink(allowSchemaDrift: true,",
+				"     allowSchemaDrift: true,",
 				"     validateSchema: false,",
-				"     input(",
+				"     query: 'SELECT NVL(MAX(LOCATION_SK),0) AS MAX_LOCATION_SK FROM FOOD_INSPECTION_SCHEMA.DIM_LOCATION',",
+				"     format: 'query') ~> dimLocation1",
+				"source(output(",
 				"          LOCATION_SK as decimal(20,0),",
 				"          ADDRESS as string,",
 				"          CITY as string,",
@@ -117,18 +112,35 @@
 				"          ZIP_CODE as decimal(10,0),",
 				"          LATITUDE as double,",
 				"          LONGITUDE as double,",
-				"          IS_CURRENT as decimal(2,0),",
 				"          DI_JOB_ID as string,",
 				"          DI_LOAD_DT as timestamp",
 				"     ),",
-				"     deletable:false,",
-				"     insertable:true,",
-				"     updateable:false,",
-				"     upsertable:false,",
-				"     format: 'table',",
-				"     skipDuplicateMapInputs: true,",
-				"     skipDuplicateMapOutputs: true,",
-				"     stageInsert: true) ~> sink1"
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'table') ~> dimLocation2",
+				"srcStgChicago, srcStgDallas union(byName: true)~> combiningDatasets",
+				"combiningDatasets, dimLocation1 join(1 == 1,",
+				"     joinType:'cross',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> joinCROSS",
+				"joinCROSS aggregate(groupBy(ADDRESS,",
+				"          CITY,",
+				"          STATE,",
+				"          ZIP,",
+				"          LATITUDE,",
+				"          LONGITUDE),",
+				"     count_num = count(INSPECTION_ID)) ~> Aggregate",
+				"Aggregate, dimLocation2 join(Aggregate@ADDRESS == dimLocation2@ADDRESS",
+				"     && Aggregate@CITY == dimLocation2@CITY",
+				"     && Aggregate@STATE == dimLocation2@STATE",
+				"     && ZIP == ZIP_CODE",
+				"     && Aggregate@LATITUDE == dimLocation2@LATITUDE",
+				"     && Aggregate@LONGITUDE == dimLocation2@LONGITUDE,",
+				"     joinType:'left',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> joinLefter"
 			]
 		}
 	}
