@@ -5,14 +5,44 @@
 		"typeProperties": {
 			"sources": [
 				{
-					"name": "source1"
+					"name": "srcStgChicago"
+				},
+				{
+					"name": "srcStgDallas"
+				},
+				{
+					"name": "srcDimFaciltiy"
+				},
+				{
+					"name": "srcDimInspectionType"
+				},
+				{
+					"name": "srcDimLocation"
+				},
+				{
+					"name": "srcDimViolation"
+				},
+				{
+					"name": "srcDimDate"
 				}
 			],
 			"sinks": [],
 			"transformations": [],
 			"scriptLines": [
 				"source(allowSchemaDrift: true,",
-				"     validateSchema: false) ~> source1"
+				"     validateSchema: false) ~> srcStgChicago",
+				"source(allowSchemaDrift: true,",
+				"     validateSchema: false) ~> srcStgDallas",
+				"source(allowSchemaDrift: true,",
+				"     validateSchema: false) ~> srcDimFaciltiy",
+				"source(allowSchemaDrift: true,",
+				"     validateSchema: false) ~> srcDimInspectionType",
+				"source(allowSchemaDrift: true,",
+				"     validateSchema: false) ~> srcDimLocation",
+				"source(allowSchemaDrift: true,",
+				"     validateSchema: false) ~> srcDimViolation",
+				"source(allowSchemaDrift: true,",
+				"     validateSchema: false) ~> srcDimDate"
 			]
 		}
 	}

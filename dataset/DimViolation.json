@@ -1,5 +1,5 @@
 {
-	"name": "SnowflakeTable3",
+	"name": "DimViolation",
 	"properties": {
 		"linkedServiceName": {
 			"referenceName": "Snowflake1",

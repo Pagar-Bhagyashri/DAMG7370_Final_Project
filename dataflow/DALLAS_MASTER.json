@@ -15,7 +15,7 @@
 			"sinks": [
 				{
 					"dataset": {
-						"referenceName": "SnowflakeTable1",
+						"referenceName": "FinalProjectSchemaStagingDallas",
 						"type": "DatasetReference"
 					},
 					"name": "STGDALLAS"

@@ -6,23 +6,19 @@
 			"sources": [
 				{
 					"dataset": {
-						"referenceName": "SnowflakeTable7",
+						"referenceName": "FinalProjectSchemaStgChicago",
 						"type": "DatasetReference"
 					},
 					"name": "STAGECHICAGO"
 				},
 				{
-					"dataset": {
-						"referenceName": "SnowflakeTable8",
-						"type": "DatasetReference"
-					},
 					"name": "STAGEDALLAS"
 				}
 			],
 			"sinks": [
 				{
 					"dataset": {
-						"referenceName": "SnowflakeTable9",
+						"referenceName": "DimFacility",
 						"type": "DatasetReference"
 					},
 					"name": "sinkDimFacility"
@@ -101,8 +97,7 @@
 				"          SURROGATE_KEY as string",
 				"     ),",
 				"     allowSchemaDrift: true,",
-				"     validateSchema: false,",
-				"     format: 'table') ~> STAGEDALLAS",
+				"     validateSchema: false) ~> STAGEDALLAS",
 				"STAGECHICAGO, STAGEDALLAS union(byName: true)~> Combine",
 				"Combine select(mapColumn(",
 				"          DBA_NAME,",
