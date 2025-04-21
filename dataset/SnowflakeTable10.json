@@ -1,8 +1,8 @@
 {
-	"name": "SnowflakeTable1",
+	"name": "SnowflakeTable10",
 	"properties": {
 		"linkedServiceName": {
-			"referenceName": "Snowflake1",
+			"referenceName": "FinalProjectSnowflake",
 			"type": "LinkedServiceReference"
 		},
 		"annotations": [],
