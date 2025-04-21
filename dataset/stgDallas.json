@@ -60,13 +60,13 @@
 				"name": "LATITUDE",
 				"type": "NUMBER",
 				"precision": 38,
-				"scale": 0
+				"scale": 16
 			},
 			{
 				"name": "LONGITUDE",
 				"type": "NUMBER",
 				"precision": 38,
-				"scale": 0
+				"scale": 16
 			},
 			{
 				"name": "VIOLATION_CATEGORY_ID",

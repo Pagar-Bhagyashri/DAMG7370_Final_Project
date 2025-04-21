@@ -6,12 +6,16 @@
 			"sources": [
 				{
 					"dataset": {
-						"referenceName": "FinalProjectSchemaStgChicago",
+						"referenceName": "stgChicago",
 						"type": "DatasetReference"
 					},
 					"name": "STAGECHICAGO"
 				},
 				{
+					"dataset": {
+						"referenceName": "stgDallas",
+						"type": "DatasetReference"
+					},
 					"name": "STAGEDALLAS"
 				}
 			],
@@ -97,7 +101,8 @@
 				"          SURROGATE_KEY as string",
 				"     ),",
 				"     allowSchemaDrift: true,",
-				"     validateSchema: false) ~> STAGEDALLAS",
+				"     validateSchema: false,",
+				"     format: 'table') ~> STAGEDALLAS",
 				"STAGECHICAGO, STAGEDALLAS union(byName: true)~> Combine",
 				"Combine select(mapColumn(",
 				"          DBA_NAME,",

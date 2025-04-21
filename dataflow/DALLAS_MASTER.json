@@ -9,7 +9,7 @@
 						"referenceName": "DALLAS_MASTER",
 						"type": "DatasetReference"
 					},
-					"name": "source1"
+					"name": "source2"
 				}
 			],
 			"sinks": [
@@ -18,10 +18,16 @@
 						"referenceName": "FinalProjectSchemaStagingDallas",
 						"type": "DatasetReference"
 					},
-					"name": "STGDALLAS"
+					"name": "sink1"
 				}
 			],
 			"transformations": [
+				{
+					"name": "derivedColumn1"
+				},
+				{
+					"name": "derivedColumn2"
+				},
 				{
 					"name": "surrogateKey1"
 				}
@@ -50,8 +56,12 @@
 				"     allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     ignoreNoFilesFound: false,",
-				"     format: 'parquet') ~> source1",
-				"source1 keyGenerate(output(ROW_NUM as long),",
+				"     format: 'parquet') ~> source2",
+				"source2 derive(Latitude = toString(Latitude),",
+				"          Longitude = toString(Longitude)) ~> derivedColumn1",
+				"derivedColumn1 derive(Latitude = toDecimal(Latitude, 38, 16),",
+				"          Longitude = toDecimal(Longitude, 38, 16)) ~> derivedColumn2",
+				"derivedColumn2 keyGenerate(output(RowNum as long),",
 				"     startAt: 1L,",
 				"     stepValue: 1L) ~> surrogateKey1",
 				"surrogateKey1 sink(allowSchemaDrift: true,",
@@ -104,8 +114,8 @@
 				"          VIOLATION_COMMENTS = Violation_Comments,",
 				"          VIOLATION_POINT = Violation_Point,",
 				"          RISK_LEVEL = Risk_Level,",
-				"          SURROGATE_KEY = ROW_NUM",
-				"     )) ~> STGDALLAS"
+				"          SURROGATE_KEY = RowNum",
+				"     )) ~> sink1"
 			]
 		}
 	}

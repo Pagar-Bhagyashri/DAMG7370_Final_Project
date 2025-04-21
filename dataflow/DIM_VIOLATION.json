@@ -130,7 +130,7 @@
 				"          VIOLATION_SK as decimal(25,0),",
 				"          VIOLATION_CAT_ID as decimal(10,0),",
 				"          VIOLATION_CAT as string,",
-				"          VIOLATION_SCORE as decimal(2,0),",
+				"          VIOLATION_COMMENTS as string,",
 				"          DI_JOB_ID as string,",
 				"          DI_LOAD_DT as timestamp",
 				"     ),",

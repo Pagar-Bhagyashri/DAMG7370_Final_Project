@@ -5,17 +5,9 @@
 		"typeProperties": {
 			"sources": [
 				{
-					"dataset": {
-						"referenceName": "SnowflakeTable12",
-						"type": "DatasetReference"
-					},
 					"name": "STAGEDDALLAS"
 				},
 				{
-					"dataset": {
-						"referenceName": "SnowflakeTable13",
-						"type": "DatasetReference"
-					},
 					"name": "STAGEDCHICAGO"
 				},
 				{
@@ -29,7 +21,7 @@
 			"sinks": [
 				{
 					"dataset": {
-						"referenceName": "SnowflakeTable16",
+						"referenceName": "DimDate",
 						"type": "DatasetReference"
 					},
 					"name": "sink1"
@@ -78,8 +70,7 @@
 				"          SURROGATE_KEY as string",
 				"     ),",
 				"     allowSchemaDrift: true,",
-				"     validateSchema: false,",
-				"     format: 'table') ~> STAGEDDALLAS",
+				"     validateSchema: false) ~> STAGEDDALLAS",
 				"source(output(",
 				"          INSPECTION_ID as decimal(38,0),",
 				"          DBA_NAME as string,",
@@ -102,8 +93,7 @@
 				"          SURROGATE_KEY as string",
 				"     ),",
 				"     allowSchemaDrift: true,",
-				"     validateSchema: false,",
-				"     format: 'table') ~> STAGEDCHICAGO",
+				"     validateSchema: false) ~> STAGEDCHICAGO",
 				"source(output(",
 				"          MAX_DATE as decimal(10,0)",
 				"     ),",
@@ -129,8 +119,7 @@
 				"surrogateKey1 derive(DI_JOB_ID = $JOB_ID,",
 				"          DI_LOAD_DT = currentTimestamp(),",
 				"          DT = INSPECTION_DATE,",
-				"          DAY_NAME = iif(dayOfWeek(INSPECTION_DATE) == 0, 'Sunday',iif(dayOfWeek(INSPECTION_DATE) == 1, 'Monday',iif(dayOfWeek(INSPECTION_DATE) == 2, 'Tuesday',iif(dayOfWeek(INSPECTION_DATE) == 3, 'Wednesday',iif(dayOfWeek(INSPECTION_DATE) == 4, 'Thursday',iif(dayOfWeek(INSPECTION_DATE) == 5, 'Friday','Saturday'))))))\r",
-				" ,",
+				"          DAY_NAME = iif(dayOfWeek(INSPECTION_DATE) == 0, 'Sunday',iif(dayOfWeek(INSPECTION_DATE) == 1, 'Monday',iif(dayOfWeek(INSPECTION_DATE) == 2, 'Tuesday',iif(dayOfWeek(INSPECTION_DATE) == 3, 'Wednesday',iif(dayOfWeek(INSPECTION_DATE) == 4, 'Thursday',iif(dayOfWeek(INSPECTION_DATE) == 5, 'Friday','Saturday')))))),",
 				"          DAY_ABBR = iif(dayOfWeek(INSPECTION_DATE) == 0, 'Sun', iif(dayOfWeek(INSPECTION_DATE) == 1, 'Mon', iif(dayOfWeek(INSPECTION_DATE) == 2, 'Tue', iif(dayOfWeek(INSPECTION_DATE) == 3, 'Wed', iif(dayOfWeek(INSPECTION_DATE) == 4, 'Thu', iif(dayOfWeek(INSPECTION_DATE) == 5, 'Fri', 'Sat')))))),",
 				"          DAY_NUM = dayOfMonth(INSPECTION_DATE),",
 				"          MONTH_NAME = iif(month(INSPECTION_DATE) == 1, 'January', iif(month(INSPECTION_DATE) == 2, 'February', iif(month(INSPECTION_DATE) == 3, 'March', iif(month(INSPECTION_DATE) == 4, 'April', iif(month(INSPECTION_DATE) == 5, 'May', iif(month(INSPECTION_DATE) == 6, 'June', iif(month(INSPECTION_DATE) == 7, 'July', iif(month(INSPECTION_DATE) == 8, 'August', iif(month(INSPECTION_DATE) == 9, 'September', iif(month(INSPECTION_DATE) == 10, 'October', iif(month(INSPECTION_DATE) == 11, 'November', 'December'))))))))))),",
@@ -138,7 +127,7 @@
 				"          MONTH_NUM = month(INSPECTION_DATE),",
 				"          QTR_NUM = iif(month(INSPECTION_DATE) <= 3, 1, iif(month(INSPECTION_DATE) <= 6, 2, iif(month(INSPECTION_DATE) <= 9, 3, 4))),",
 				"          YEAR_NUM = year(INSPECTION_DATE),",
-				"          IS_WEEKEND = iif(dayOfWeek(INSPECTION_DATE) == 0 || dayOfWeek(INSPECTION_DATE) == 6, 1, 0)  ,",
+				"          IS_WEEKEND = iif(dayOfWeek(INSPECTION_DATE) == 0 || dayOfWeek(INSPECTION_DATE) == 6, 1, 0),",
 				"          ROW_NUM2 = Row_Num+MAX_DATE) ~> derivedColumn1",
 				"derivedColumn1 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",

@@ -47,11 +47,40 @@
 					"name": "srcDimViolation"
 				},
 				{
+					"dataset": {
+						"referenceName": "DimDate",
+						"type": "DatasetReference"
+					},
 					"name": "srcDimDate"
 				}
 			],
 			"sinks": [],
-			"transformations": [],
+			"transformations": [
+				{
+					"name": "CombiningChicagoDallas"
+				},
+				{
+					"name": "AggregateColumns"
+				},
+				{
+					"name": "joinDimFacility"
+				},
+				{
+					"name": "joinDimInspectionType"
+				},
+				{
+					"name": "joinDimLocation"
+				},
+				{
+					"name": "joinDimViolation"
+				},
+				{
+					"name": "joinDimDate"
+				},
+				{
+					"name": "derivedColumn1"
+				}
+			],
 			"scriptLines": [
 				"source(output(",
 				"          INSPECTION_ID as decimal(38,0),",
@@ -141,15 +170,80 @@
 				"          VIOLATION_SK as decimal(25,0),",
 				"          VIOLATION_CAT_ID as decimal(10,0),",
 				"          VIOLATION_CAT as string,",
-				"          VIOLATION_SCORE as decimal(2,0),",
+				"          VIOLATION_COMMENTS as string,",
 				"          DI_JOB_ID as string,",
 				"          DI_LOAD_DT as timestamp",
 				"     ),",
 				"     allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     format: 'table') ~> srcDimViolation",
-				"source(allowSchemaDrift: true,",
-				"     validateSchema: false) ~> srcDimDate"
+				"source(output(",
+				"          DATE_SK as decimal(10,0),",
+				"          DATE as date,",
+				"          DAY_NAME as string,",
+				"          DAY_ABBR as string,",
+				"          DAY_NUM as decimal(2,0),",
+				"          MONTH_NAME as string,",
+				"          MONTH_ABBR as string,",
+				"          MONTH_NUM as decimal(2,0),",
+				"          QTR_NUM as decimal(2,0),",
+				"          YEAR_NUM as decimal(4,0),",
+				"          IS_WEEKEND as decimal(2,0),",
+				"          DI_JOB_ID as string,",
+				"          DI_LOAD_DT as timestamp",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'table') ~> srcDimDate",
+				"srcStgChicago, srcStgDallas union(byName: true)~> CombiningChicagoDallas",
+				"CombiningChicagoDallas aggregate(groupBy(INSPECTION_ID,",
+				"          DBA_NAME,",
+				"          AKA_NAME,",
+				"          FACILITY_TYPE,",
+				"          ADDRESS,",
+				"          CITY,",
+				"          STATE,",
+				"          ZIP,",
+				"          INSPECTION_DATE,",
+				"          INSPECTION_TYPE,",
+				"          INSPECTION_RESULT,",
+				"          LATITUDE,",
+				"          LONGITUDE,",
+				"          VIOLATION_CATEGORY_ID,",
+				"          VIOLATION_CATEGORY,",
+				"          VIOLATION_COMMENTS,",
+				"          VIOLATION_POINT,",
+				"          RISK_LEVEL,",
+				"          SURROGATE_KEY),",
+				"     count_num = count(INSPECTION_ID)) ~> AggregateColumns",
+				"AggregateColumns, srcDimFacility join(AggregateColumns@FACILITY_TYPE == srcDimFacility@FACILITY_TYPE",
+				"     && AggregateColumns@AKA_NAME == srcDimFacility@AKA_NAME,",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> joinDimFacility",
+				"joinDimFacility, srcDimInspectionType join(AggregateColumns@INSPECTION_ID == srcDimInspectionType@INSPECTION_ID",
+				"     && AggregateColumns@INSPECTION_RESULT == srcDimInspectionType@INSPECTION_RESULT,",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> joinDimInspectionType",
+				"joinDimInspectionType, srcDimLocation join(ERROR_FUNCTION('') == srcDimLocation@CITY,",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> joinDimLocation",
+				"joinDimLocation join(ERROR_FUNCTION('') == ERROR_FUNCTION(''),",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> joinDimViolation",
+				"joinDimViolation join(ERROR_FUNCTION('') == ERROR_FUNCTION(''),",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> joinDimDate",
+				"srcStgDallas derive(LATITUDE = ERROR_FUNCTION('')) ~> derivedColumn1"
 			]
 		}
 	}
