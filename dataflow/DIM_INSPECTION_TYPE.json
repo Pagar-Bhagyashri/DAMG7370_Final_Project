@@ -5,9 +5,17 @@
 		"typeProperties": {
 			"sources": [
 				{
+					"dataset": {
+						"referenceName": "stgChicago",
+						"type": "DatasetReference"
+					},
 					"name": "STAGECHICAGO"
 				},
 				{
+					"dataset": {
+						"referenceName": "stgDallas",
+						"type": "DatasetReference"
+					},
 					"name": "STAGEDALLAS"
 				},
 				{
@@ -55,6 +63,12 @@
 				},
 				{
 					"name": "join2"
+				},
+				{
+					"name": "aggregate1"
+				},
+				{
+					"name": "select2"
 				}
 			],
 			"scriptLines": [
@@ -80,7 +94,8 @@
 				"          SURROGATE_KEY as string",
 				"     ),",
 				"     allowSchemaDrift: true,",
-				"     validateSchema: false) ~> STAGECHICAGO",
+				"     validateSchema: false,",
+				"     format: 'table') ~> STAGECHICAGO",
 				"source(output(",
 				"          INSPECTION_ID as decimal(38,0),",
 				"          DBA_NAME as string,",
@@ -93,8 +108,8 @@
 				"          INSPECTION_DATE as date,",
 				"          INSPECTION_TYPE as string,",
 				"          INSPECTION_RESULT as string,",
-				"          LATITUDE as decimal(38,0),",
-				"          LONGITUDE as decimal(38,0),",
+				"          LATITUDE as decimal(38,16),",
+				"          LONGITUDE as decimal(38,16),",
 				"          VIOLATION_CATEGORY_ID as decimal(38,0),",
 				"          VIOLATION_CATEGORY as string,",
 				"          VIOLATION_COMMENTS as string,",
@@ -103,7 +118,8 @@
 				"          SURROGATE_KEY as string",
 				"     ),",
 				"     allowSchemaDrift: true,",
-				"     validateSchema: false) ~> STAGEDALLAS",
+				"     validateSchema: false,",
+				"     format: 'table') ~> STAGEDALLAS",
 				"source(output(",
 				"          MAX_INSPECTION_TYPE as decimal(30,0)",
 				"     ),",
@@ -140,7 +156,25 @@
 				"     ignoreSpaces: false,",
 				"     broadcast: 'auto')~> join1",
 				"join1 aggregate(groupBy(INSPECTION_TYPE,",
-				"          INSPECTION_RESULT),",
+				"          INSPECTION_RESULT,",
+				"          INSPECTION_ID,",
+				"          DBA_NAME,",
+				"          AKA_NAME,",
+				"          FACILITY_TYPE,",
+				"          ADDRESS,",
+				"          CITY,",
+				"          STATE,",
+				"          ZIP,",
+				"          INSPECTION_DATE,",
+				"          LATITUDE,",
+				"          LONGITUDE,",
+				"          VIOLATION_CATEGORY_ID,",
+				"          VIOLATION_CATEGORY,",
+				"          VIOLATION_COMMENTS,",
+				"          VIOLATION_POINT,",
+				"          RISK_LEVEL,",
+				"          SURROGATE_KEY,",
+				"          MAX_INSPECTION_TYPE),",
 				"     CountRow = count(INSPECTION_ID)) ~> CheckUniques",
 				"CheckUniques, srcDimInspectionType join(CheckUniques@INSPECTION_TYPE == srcDimInspectionType@INSPECTION_TYPE",
 				"     && INSPECTION_RESULT == ERROR_FUNCTION(''),",
@@ -148,7 +182,25 @@
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
 				"     broadcast: 'auto')~> join2",
-				"derivedColumn1 sink(allowSchemaDrift: true,",
+				"derivedColumn1 aggregate(groupBy(INSPECTION_TYPE_SK,",
+				"          INSPECTION_TYPE,",
+				"          INSPECTION_RESULT,",
+				"          CountRow,",
+				"          DI_JOB_ID,",
+				"          {} = ERROR_FUNCTION('')),",
+				"     count = count(INSPECTION_TYPE)) ~> aggregate1",
+				"aggregate1 select(mapColumn(",
+				"          INSPECTION_TYPE_SK = CountRow,",
+				"          INSPECTION_TYPE,",
+				"          INSPECTION_RESULT,",
+				"          CountRow,",
+				"          DI_JOB_ID,",
+				"          {},",
+				"          count",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select2",
+				"select2 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
 				"          INSPECTION_TYPE_SK as decimal(30,0),",
